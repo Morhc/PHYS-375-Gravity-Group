@@ -10,7 +10,7 @@ class Standards:
 
     #Solar standard
     Msun = 1.989e30
-    Rsun = 6.955e5
+    Rsun = 6.955e8
     Lsun = 3.839e26
 
     #Physical constants
