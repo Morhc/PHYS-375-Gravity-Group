@@ -2,6 +2,7 @@
 #purpose: To have a hub for all useful functions.
 
 import os
+import numpy as np
 import pandas as pd
 from standards import Standards as s
 
@@ -23,9 +24,9 @@ def dydr(r,y) :
     dydr = np.zeros(5)
     dydr[0] = -(G*y[2]*y[0]/r**2 + partialP/partialT*dydr[1])/partialP/partialrho #Determine PDEs used (Could be as simple as subbing eq 7 from project instructions)
     dydr[1] = -min(3*k*y[0]*y[3]/(16*np.pi*ac*y[1]**3*r**2)*(1-1/gamma)*y[1]/P*G*y[2]*y[0]/r**2) #What is gamma and k, confirm min function
-    dydr[2] = 4*np.pi*r**2*y[0]
-    dydr[3] = 4*np.pi*r**2*y[0]*epsilon #What is epsilon
-    dydr[4] = k*y[0] #What is k
+    dydr[2] = 4*np.pi*r**2*y[0] # mass differential equation
+    dydr[3] = 4*np.pi*r**2*y[0]*epsilon(y[0], y[1]) # Added an epsilon fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
+    dydr[4] = kappa(y[0], y[1])*y[0] # Added a kappa fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
 
     return dydr
 
@@ -39,11 +40,11 @@ def RK4Method(ri,rf,h):
     y = np.zeros(len(r),5)
 
     #initial conditions
-    y[0,0] =
-    y[0,1] =
-    y[0,2] =
-    y[0,3] =
-    y[0,4] =
+    y[0,0] =   # intial rho?
+    y[0,1] =   # inital temp?
+    y[0,2] =   # inital mass?
+    y[0,3] =   # intial luminosity?
+    y[0,4] =   # inital optical depth (tau)?
 
 
 
@@ -81,3 +82,31 @@ def RK4Method(ri,rf,h):
         y[i+1,5] = y[i+1,4] + 1/6*(k4+2*s4+2*l4+p4)
 
         return y
+
+def epsilon(rho, T):
+    '''Determining the value of epislon using equations 8 and 9'''
+
+    X_CNO = 0.03*X # X would need to be a globally defined variable
+    rho_5 = rho/1e5
+    T_6 = T/1e6
+
+    e_pp = (1.07e-7)*rho_5*np.power(X,2)*np.power(T_6,4) # output vale is units of W/kg
+    e_cno = (8.24e-26)*rho_5*X*X_CNO*np.power(T_6, 19.9) # output vale is units of W/kg
+
+    e = e_pp + e_cno
+
+    return (e)
+
+def kappa(rho, T):
+    '''Determing the value for kappa using equation 10,11,12,13 and 14'''
+    rho_3 = rho/1e3
+
+    kappa_es = 0.028(1 + X)  # units of m^2/kg
+    kappa_ff = (1.0e24)*(Z + 0.0001)*np.power(rho_3,0.7)*np.power(T,-3.5) # Z would need to be a globally defined variable # units of m^2/kg
+    kappa_Hminus = (2.5e-32)*(Z / 0.02)*np.power(rho_3,0.5)*np.power(T,9) # units of m^2/kg
+
+    # splitting the term into two
+    A = 1/kappa_Hminus
+    B = 1/np.max(kappa_es,kappa_ff)
+
+    return ( np.power(A+B,-1) )
