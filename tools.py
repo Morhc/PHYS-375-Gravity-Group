@@ -23,7 +23,7 @@ def dydr(r,y) :
 
     dydr = np.zeros(5)
     dydr[0] = -(G*y[2]*y[0]/r**2 + partialP/partialT*dydr[1])/partialP/partialrho #Determine PDEs used (Could be as simple as subbing eq 7 from project instructions)
-    dydr[1] = -min(3*k*y[0]*y[3]/(16*np.pi*ac*y[1]**3*r**2)*(1-1/gamma)*y[1]/P*G*y[2]*y[0]/r**2) #What is gamma and k, confirm min function
+    dydr[1] = -np.min( (3*kappa(y[0], y[1])*y[0]*y[3]/(16*np.pi*s.a*s.c*y[1]**3*r**2)), (1-1/s.gamma)*(y[1]*s.G*y[2]*y[0])/(P*r**2) ) # gamma is defined in standards.py. Someone please check whether I called the standards class correctly - DP
     dydr[2] = 4*np.pi*r**2*y[0] # mass differential equation
     dydr[3] = 4*np.pi*r**2*y[0]*epsilon(y[0], y[1]) # Added an epsilon fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
     dydr[4] = kappa(y[0], y[1])*y[0] # Added a kappa fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
