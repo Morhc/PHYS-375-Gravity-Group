@@ -23,6 +23,14 @@ class Standards:
     sb = 5.670e-8 #Stefan-Boltzmann constant
     mp = 1.673-27
     me = 9.109e-31
+    a = 4*sb/c #Radiation constant (see dT/dr differential)
+
+    # Project specific constants
+    gamma = 7/5 # not sure about this value
+    X = 1.00 # need to adjust these values. Ensure that X+Y+Z = 1
+    Y = 0.00
+    Z = 0.00
+    mu = (2*X + 0.75*Y + 0.5*Z)**-1
 
     #path of standards.py
     here = os.path.dirname(os.path.realpath(__file__))
