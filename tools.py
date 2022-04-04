@@ -101,7 +101,7 @@ def kappa(rho, T):
     '''Determing the value for kappa using equation 10,11,12,13 and 14'''
     rho_3 = rho/1e3
 
-    kappa_es = 0.028(1 + X)  # units of m^2/kg
+    kappa_es = 0.028*(1 + X)  # units of m^2/kg
     kappa_ff = (1.0e24)*(Z + 0.0001)*np.power(rho_3,0.7)*np.power(T,-3.5) # Z would need to be a globally defined variable # units of m^2/kg
     kappa_Hminus = (2.5e-32)*(Z / 0.02)*np.power(rho_3,0.5)*np.power(T,9) # units of m^2/kg
 
@@ -110,3 +110,9 @@ def kappa(rho, T):
     B = 1/np.max(kappa_es,kappa_ff)
 
     return ( np.power(A+B,-1) )
+
+def pressure(rho, T):
+    '''Calcualting the pressure as described by equation 5 and 6 '''
+    '''NOT DONE'''
+
+    P_degenerate = (s.hbar**2)*(3*np.pi**2)**(2/3)
