@@ -113,6 +113,9 @@ def kappa(rho, T):
 
 def pressure(rho, T):
     '''Calcualting the pressure as described by equation 5 and 6 '''
-    '''NOT DONE'''
 
-    P_degenerate = (s.hbar**2)*(3*np.pi**2)**(2/3)
+    P_degenerate = np.power(3*np.pi**2, 2/3)*np.power(s.hbar,2)*np.power(rho,5/3) / 5*s.me*np.power(s.mp, 5/3)
+    P_ideal = rho*s.k*T / s.mu*s.mp
+    P_photongas = a*np.power(T,4) / 3
+
+    return ( P_degenerate + P_ideal + P_photongas )
