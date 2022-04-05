@@ -43,9 +43,17 @@ def plot_star(data, info = None, savepath=""):
                     rf'$M_*$ = {round(info.M/s.g_to_kg/s.Msun, 3)} $M_\odot$' + '\n\n' + \
                     r'$L_*$ = ${0:s}$ $L_\odot$'.format(as_si(info.L*s.ergs_to_W/s.Lsun, 2))
 
-        plt.figtext(0.6,0.63,star_info, fontsize=15)
+        plt.figtext(0.6,0.63, star_info, fontsize=15)
 
-    #first plot
+    print(data.columns)
+    print(info)
+
+    #settings aesthetics for all plots
+    for ax in axes.flatten():
+        ax.set_xlim(0,1)
+
+    ## FIRST PLOT
+
     pl_rho = data['rho(r)']/info.rhoc
     pl_M = data['M(r)']/info.M
     pl_T = data['T(r)']/info.Tc
@@ -62,6 +70,22 @@ def plot_star(data, info = None, savepath=""):
     axes[0,0].text(0.02, 0.58, r'$L$', color = s.colours[3], fontsize=14)
 
     axes[0,0].set_ylabel(r'$\rho$/$\rho_c$, $T$/$T_c$, $M$/$M_*$, $L$/$L_*$')
+
+
+    ## SECOND PLOT
+    Pc = data['P'][0]
+
+    #need to relativize the coordinates of the text
+    axes[1,0].plot(data['r/R'], data['P']/Pc, color = s.colours[0])
+    axes[1,0].text(0.4, 0.1, r'$P_{tot}$', color = s.colours[0], fontsize=14)
+    axes[1,0].plot(data['r/R'], data['Pgas']/Pc, color = s.colours[1], ls='dashed')
+    axes[1,0].text(0.15, 0.45, r'$P_{gas}$', color = s.colours[1], fontsize=14)
+    axes[1,0].plot(data['r/R'], data['Pdeg']/Pc, color = s.colours[2], ls=(0, (5, 10)))
+    axes[1,0].text(0.05, 0.1, r'$P_{deg}$', color = s.colours[2], fontsize=14)
+    axes[1,0].plot(data['r/R'], data['Ppho']/Pc, color = s.colours[3], ls='dotted')
+    axes[1,0].text(0.2, 0.05, r'$P_{\gamma}$', color = s.colours[3], fontsize=14)
+
+    axes[1,0].set_ylabel(r'$P$/$P_c$')
 
     if savepath != "":
         plt.savefig(savepath)
