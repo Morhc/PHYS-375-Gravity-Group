@@ -22,7 +22,7 @@ def dydr(r,y) :
     """
 
     dydr = np.zeros(5)
-    dydr[0] = -(G*y[2]*y[0]/r**2 + partialP/partialT*dydr[1])/partialP/partialrho #Determine PDEs used (Could be as simple as subbing eq 7 from project instructions)
+    dydr[0] = -(G*y[2]*y[0]/r**2 + dP_dT(y[0], y[1], r)*dydr[1])/(dP_drho(y[0], y[1], r, y[2])) #Determine PDEs used (Could be as simple as subbing eq 7 from project instructions)
     dydr[1] = -np.min( (3*kappa(y[0], y[1])*y[0]*y[3]/(16*np.pi*s.a*s.c*y[1]**3*r**2)), (1-1/s.gamma)*(y[1]*s.G*y[2]*y[0])/(P*r**2) ) # gamma is defined in standards.py. Someone please check whether I called the standards class correctly - DP
     dydr[2] = 4*np.pi*r**2*y[0] # mass differential equation
     dydr[3] = 4*np.pi*r**2*y[0]*epsilon(y[0], y[1]) # Added an epsilon fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
@@ -119,3 +119,19 @@ def pressure(rho, T):
     P_photongas = a*np.power(T,4) / 3
 
     return ( P_degenerate + P_ideal + P_photongas )
+
+def dP_dT(rho, T, r):
+    '''This function will calcualte the partial derivate of pressure with respect to temperature (see equation 5)'''
+    # Taking the partial derivative wrt temperature of eqution 5
+    A = rho*s.k / s.mu*s.mp
+    B = 4*s.a*np.power(T,3) / 3
+
+    return ( A+B )
+
+def dP_drho(rho, T, r, M):
+    '''This function will calcualte the partial derivate of pressure with respect to density (see equation 5)'''
+    # Taking the partial derivative wrt density of eqution 5
+    A = 5*( (3*np.pi**2)**(2/3) )*np.power(s.hbar,2)*( (rho)**(2/3) ) / 3*5*s.me*( (s.mp)**(5/3) )
+    B = s.k*T/ s.mu*s.mp
+
+    return ( A+B )
