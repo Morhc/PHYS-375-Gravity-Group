@@ -30,7 +30,13 @@ class Standards:
     X = 1.00 # need to adjust these values. Ensure that X+Y+Z = 1
     Y = 0.00
     Z = 0.00
-    mu = (2*X + 0.75*Y + 0.5*Z)**-1
+    mu = 1/(2*X + 0.75*Y + 0.5*Z)
+
+    #scaling constants
+    g_to_kg = 1000
+    cm_to_m = 100
+    cmgs_to_mkgs = g_to_kg/(cm_to_m**3)
+    ergs_to_W = 1.0e-7
 
     #path of standards.py
     here = os.path.dirname(os.path.realpath(__file__))
@@ -42,8 +48,8 @@ class Standards:
     data_folder = os.path.join(here, 'Data')
 
     #standard palette for plot colours [colour-blind friendly]
-    colours = ["#d55e00",
-               "#cc79a7",
-               "#0072b2",
-               "#f0e442"
-               "#009e73"]
+    colours = ["black",
+               "lime",
+               "red",
+               "blue",
+               "purple"]

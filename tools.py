@@ -10,11 +10,15 @@ def load_data():
     """Loads in the data. Warning, the data is in CGMS units, NOT SI units.
     """
 
+    #all the data for a single high mass star
     highmass = pd.read_csv(os.path.join(s.data_folder, 'highmass_star.txt'), sep='\s+', header=0, skiprows=[1,2])
+    #all the data for a single low mass star
     lowmass = pd.read_csv(os.path.join(s.data_folder, 'lowmass_star.txt'), sep='\s+', header=0, skiprows=[1,2])
+    #a summary of the two high and low mass stars
     summary = pd.read_csv(os.path.join(s.data_folder, 'star_summary.txt'), sep='\s+', header=0, skiprows=[1,2])
 
     return highmass, lowmass, summary
+
 
 def dydr(r,y) :
     """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
@@ -52,17 +56,18 @@ def RK4Method(ri,rf,h):
     r = np.linspace(ri,rf,steps)
     y = np.zeros(len(r),5)
 
+    """
     #initial conditions
     y[0,0] =   # intial rho?
     y[0,1] =   # inital temp?
-    y[0,2] =   # inital mass?
-    y[0,3] =   # intial luminosity?
+    y[0,2] = 0 # inital mass? - centre boundary condition
+    y[0,3] = 0  # intial luminosity? - centre boundary condition
     y[0,4] =   # inital optical depth (tau)?
-
+    """
 
 
     #for loop to calculate y matrix using RK4 method. Should output rho,Temp,Mass,Luminosity,OpticalDepth at all radii
-    for i in range(0,len(r)-1)
+    for i in range(r.size - 1):
 
         k0 = h*dydr(r[i],y[i,:])[0]
         k1 = h*dydr(r[i],y[i,:])[1]
