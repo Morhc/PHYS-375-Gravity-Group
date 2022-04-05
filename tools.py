@@ -20,13 +20,26 @@ def dydr(r,y) :
     """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
        matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
     """
+    rho = y[0]
+    T = y[1]
+    M = y[2]
+    L = y[3]
+    tau = y[4]
 
+    # The five ODEs we are trying to solve (equation 2)
     dydr = np.zeros(5)
-    dydr[0] = -(G*y[2]*y[0]/r**2 + dP_dT(y[0], y[1], r)*dydr[1])/(dP_drho(y[0], y[1], r, y[2])) #Determine PDEs used (Could be as simple as subbing eq 7 from project instructions)
-    dydr[1] = -np.min( (3*kappa(y[0], y[1])*y[0]*y[3]/(16*np.pi*s.a*s.c*y[1]**3*r**2)), (1-1/s.gamma)*(y[1]*s.G*y[2]*y[0])/(P*r**2) ) # gamma is defined in standards.py. Someone please check whether I called the standards class correctly - DP
-    dydr[2] = 4*np.pi*r**2*y[0] # mass differential equation
-    dydr[3] = 4*np.pi*r**2*y[0]*epsilon(y[0], y[1]) # Added an epsilon fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
-    dydr[4] = kappa(y[0], y[1])*y[0] # Added a kappa fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
+    dydr[0] = drho_dr(rho, T, r, M,L)
+    dydr[1] = dT_dr(rho, T, r, L, M)
+    dydr[2] = dM_dr(rho, r)
+    dydr[3] = dL_dr(rho , T, r)
+    dydr[4] = dtau_dr(rho, T)
+
+    # dydr = np.zeros(5)
+    # dydr[0] = -(G*y[2]*y[0]/r**2 + dP_dT(y[0], y[1], r)*dydr[1])/(dP_drho(y[0], y[1], r, y[2])) #Determine PDEs used (Could be as simple as subbing eq 7 from project instructions)
+    # dydr[1] = -np.min( (3*kappa(y[0], y[1])*y[0]*y[3]/(16*np.pi*s.a*s.c*y[1]**3*r**2)), (1-1/s.gamma)*(y[1]*s.G*y[2]*y[0])/(P*r**2) ) # gamma is defined in standards.py. Someone please check whether I called the standards class correctly - DP
+    # dydr[2] = 4*np.pi*r**2*y[0] # mass differential equation
+    # dydr[3] = 4*np.pi*r**2*y[0]*epsilon(y[0], y[1]) # Added an epsilon fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
+    # dydr[4] = kappa(y[0], y[1])*y[0] # Added a kappa fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
 
     return dydr
 
@@ -135,3 +148,36 @@ def dP_drho(rho, T, r, M):
     B = s.k*T/ s.mu*s.mp
 
     return ( A+B )
+
+def dtau_dr(rho, T):
+    '''This function will calculate the optical depth DE'''
+    '''Calls the kappa function for the opacity'''
+
+    return ( kappa(rho, T)*rho )
+
+def dL_dr(rho , T, r):
+    '''This function will calcualte the luminosity DE'''
+
+    return ( 4*np.pi*(r**2)*rho*epsilon(rho, T) )
+
+def dM_dr(rho, r):
+    '''This function will calculate the mass DE'''
+    return ( 4*np.pi*(r**2)*rho )
+
+def dT_dr(rho, T, r, L, M):
+    '''This function will calcualte the termperature DE'''
+
+    A = 3*kappa(rho, T)*rho*L / ( 16*np.pi*s.a*s.c*np.power(T,3)*np.power(r,2) )
+    B = (1- 1/s.gamma)*( T*G*M*rho / pressure(rho,T)*np.power(r,2) ) # gamma is declared in the 'Standards' class
+
+    minimum = min(A,B)
+    return (-minimum)
+
+def drho_dr(rho, T, r, M,L):
+    '''This fucntion will calcualte the density DE'''
+
+    A = s.G*M*rho / np.power(r,2)
+    B = dP_dT(rho, T, r)*dT_dr(rho, T, r, L, M)
+    C = dP_drho(rho, T, r, M)
+
+    return ( -(A+B)/C )
