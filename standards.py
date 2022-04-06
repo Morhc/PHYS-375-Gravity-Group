@@ -26,7 +26,7 @@ class Standards:
     a = 4*sb/c #Radiation constant (see dT/dr differential)
 
     # Project specific constants
-    gamma = 7/5 # not sure about this value
+    gamma = -2/3 # not sure about this value
     X = 1.00 # need to adjust these values. Ensure that X+Y+Z = 1
     Y = 0.00
     Z = 0.00
