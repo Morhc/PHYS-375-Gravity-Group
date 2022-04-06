@@ -49,7 +49,7 @@ class Standards:
 
     #standard palette for plot colours [colour-blind friendly]
     colours = ["black",
-               "lime",
+               "limegreen",
                "red",
                "blue",
                "purple"]

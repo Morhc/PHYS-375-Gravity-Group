@@ -17,6 +17,8 @@ def load_data():
     #a summary of the two high and low mass stars
     summary = pd.read_csv(os.path.join(s.data_folder, 'star_summary.txt'), sep='\s+', header=0, skiprows=[1,2])
 
+    #note: there appears to be two dL/dr columns with the same data 
+
     return highmass, lowmass, summary
 
 
