@@ -120,9 +120,22 @@ def plot_star(data, info = None, savepath=""):
     axes[2,1].set_ylim(0, lum_max)
     axes[2,1].set_xlabel(r'$r$/$R_*$')
 
+    #the convective region is where dlogP/dlogT = 1 - 1/gamma = 2.5
+    convective = data[data['dlogP/dlogT'] == 2.5].index.values
+    vals = [[convective[0]]]
+    c = 0
+    for i in range(1, len(convective)):
+        #find all discontinuities
+        if convective[i] - convective[i-1] != 1:
+            vals[c].append(convective[i-1])
+            vals.append([convective[i]])
+            c+=1
+    vals[c].append(convective[-1])
+
     #settings aesthetics for all plots
     for i, ax in enumerate(fig.axes):
-        ax.axvspan(0.85,1,color='lightgrey',alpha=0.5,lw=0)
+        for region in vals:
+            ax.axvspan(r_R[region[0]], r_R[region[1]],color='lightgrey',alpha=0.5,lw=0)
 
         ax.tick_params(direction='in', which='both', right=True, top=True)
 
