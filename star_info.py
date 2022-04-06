@@ -54,15 +54,17 @@ def plot_star(data, info = None, savepath=""):
     pl_T = data['T(r)']/info.Tc
     pl_L = data['L(r)']/info.L
 
+    r_R = data['r/R']
+
     #need to relativize the coordinates of the text
-    axes[0,0].plot(data['r/R'], pl_rho, color = s.colours[0])
-    axes[0,0].text(0.03, 0.8, r'$\rho$', color = s.colours[0], fontsize=14)
-    axes[0,0].plot(data['r/R'], pl_M, color = s.colours[1], ls='dashed')
-    axes[0,0].text(0.6, 0.9, r'$M$', color = s.colours[1], fontsize=14)
-    axes[0,0].plot(data['r/R'], pl_T, color = s.colours[2], ls=(0, (5, 10)))
-    axes[0,0].text(0.7, 0.15, r'$T$', color = s.colours[2], fontsize=14)
-    axes[0,0].plot(data['r/R'], pl_L, color = s.colours[3], ls='dotted')
-    axes[0,0].text(0.02, 0.58, r'$L$', color = s.colours[3], fontsize=14)
+    axes[0,0].plot(r_R, pl_rho, color = s.colours[0])
+    axes[0,0].text(0.03, pl_rho[max(r_R[r_R < 0.1].index.values)], r'$\rho$', color = s.colours[0], fontsize=14)
+    axes[0,0].plot(r_R, pl_M, color = s.colours[1], ls='dashed')
+    axes[0,0].text(0.7, 0.9*pl_M[max(r_R[r_R < 0.7].index.values)], r'$M$', color = s.colours[1], fontsize=14)
+    axes[0,0].plot(r_R, pl_T, color = s.colours[2], ls=(0, (5, 10)))
+    axes[0,0].text(0.7, 1.2*pl_T[max(r_R[r_R < 0.7].index.values)], r'$T$', color = s.colours[2], fontsize=14)
+    axes[0,0].plot(r_R, pl_L, color = s.colours[3], ls='dotted')
+    axes[0,0].text(0.4*r_R[max(pl_L[pl_L < 0.58].index.values)], 0.58, r'$L$', color = s.colours[3], fontsize=14)
 
     axes[0,0].set_ylabel(r'$\rho$/$\rho_c$, $T$/$T_c$, $M$/$M_*$, $L$/$L_*$')
 
@@ -71,13 +73,13 @@ def plot_star(data, info = None, savepath=""):
     Pc = data['P'][0]
 
     #need to relativize the coordinates of the text
-    axes[1,0].plot(data['r/R'], data['P']/Pc, color = s.colours[0])
+    axes[1,0].plot(r_R, data['P']/Pc, color = s.colours[0])
     axes[1,0].text(0.4, 0.1, r'$P_{tot}$', color = s.colours[0], fontsize=14)
-    axes[1,0].plot(data['r/R'], data['Pgas']/Pc, color = s.colours[1], ls='dashed')
+    axes[1,0].plot(r_R, data['Pgas']/Pc, color = s.colours[1], ls='dashed')
     axes[1,0].text(0.15, 0.45, r'$P_{gas}$', color = s.colours[1], fontsize=14)
-    axes[1,0].plot(data['r/R'], data['Pdeg']/Pc, color = s.colours[2], ls=(0, (5, 10)))
+    axes[1,0].plot(r_R, data['Pdeg']/Pc, color = s.colours[2], ls=(0, (5, 10)))
     axes[1,0].text(0.05, 0.1, r'$P_{deg}$', color = s.colours[2], fontsize=14)
-    axes[1,0].plot(data['r/R'], data['Ppho']/Pc, color = s.colours[3], ls='dotted')
+    axes[1,0].plot(r_R, data['Ppho']/Pc, color = s.colours[3], ls='dotted')
     axes[1,0].text(0.2, 0.05, r'$P_{\gamma}$', color = s.colours[3], fontsize=14)
 
     axes[1,0].set_ylabel(r'$P$/$P_c$')
@@ -85,7 +87,7 @@ def plot_star(data, info = None, savepath=""):
 
     ## THIRD PLOT - dlogP/dlogT
 
-    axes[2,0].plot(data['r/R'], data['dlogP/dlogT'], color = s.colours[0])
+    axes[2,0].plot(r_R, data['dlogP/dlogT'], color = s.colours[0])
 
     axes[2,0].set_ylim(0, 2*np.nanmax(data['dlogP/dlogT']))
     axes[2,0].set_ylabel(r'dlog$P$/dlog$T$')
@@ -94,37 +96,51 @@ def plot_star(data, info = None, savepath=""):
     ## FOURTH PLOT - log(kappa)
 
     #need to relativize the coordinates of the text
-    axes[1,1].plot(data['r/R'], np.log10(data['kappa']), color = s.colours[0])
+    axes[1,1].plot(r_R, np.log10(data['kappa']), color = s.colours[0])
     axes[1,1].text(0.5, 1, r'$\kappa$', color = s.colours[0], fontsize=14)
-    axes[1,1].plot(data['r/R'], np.log10(data['kappaff']), color = s.colours[1], ls='dashed')
+    axes[1,1].plot(r_R, np.log10(data['kappaff']), color = s.colours[1], ls='dashed')
     axes[1,1].text(0.8, 2, r'$\kappa_{ff}$', color = s.colours[1], fontsize=14)
-    axes[1,1].plot(data['r/R'], np.log10(data['kappaHm']), color = s.colours[2], ls=(0, (5, 10)))
+    axes[1,1].plot(r_R, np.log10(data['kappaHm']), color = s.colours[2], ls=(0, (5, 10)))
     axes[1,1].text(0.85, 9, r'$\kappa_{H^-}$', color = s.colours[2], fontsize=14)
-    axes[1,1].plot(data['r/R'], np.log10(data['kappaes']), color = s.colours[3], ls='dotted')
+    axes[1,1].plot(r_R, np.log10(data['kappaes']), color = s.colours[3], ls='dotted')
     axes[1,1].text(0.3, -1.5, r'$\kappa_{es}$', color = s.colours[3], fontsize=14)
 
     axes[1,1].set_ylabel(r'log$_{10}$($\kappa$) (cm$^2$/g)')
     axes[1,1].set_ylim(-2, 10)
 
     #need to relativize the coordinates of the text
-    axes[2,1].plot(data['r/R'], data['dL/dr']*info.R/info.L, color = s.colours[0])
-    axes[2,1].text(0.6, 10, r'd$L$/d$r$', color = s.colours[0], fontsize=14)
-    axes[2,1].plot(data['r/R'], data['dLpp/dr']*info.R/info.L, color = s.colours[2], ls=(0, (5, 10)))
-    axes[2,1].text(0.6, 9, r'd$L_{pp}$/d$r$', color = s.colours[2], fontsize=14)
-    axes[2,1].plot(data['r/R'], data['dLcno/dr']*info.R/info.L, color = s.colours[3], ls='dotted')
-    axes[2,1].text(0.6, 8, r'd$L_{CNO}$/d$r$', color = s.colours[3], fontsize=14)
+    axes[2,1].plot(r_R, data['dL/dr']*info.R/info.L, color = s.colours[0])
+    axes[2,1].text(0.6, 10, r'$dL$/$dr$', color = s.colours[0], fontsize=14)
+    axes[2,1].plot(r_R, data['dLpp/dr']*info.R/info.L, color = s.colours[2], ls=(0, (5, 10)))
+    axes[2,1].text(0.6, 9, r'$dL_{pp}$/$dr$', color = s.colours[2], fontsize=14)
+    axes[2,1].plot(r_R, data['dLcno/dr']*info.R/info.L, color = s.colours[3], ls='dotted')
+    axes[2,1].text(0.6, 8, r'$dL_{CNO}$/$dr$', color = s.colours[3], fontsize=14)
 
     axes[2,1].set_ylabel(r'd$L_*$/d$r$ (L$_*$/R$_*$)')
-    axes[2,1].set_ylim(0, 2*np.nanmax(data['dL/dr'])*info.R/info.L)
+    axes[2,1].set_ylim(0, round(2.1*np.nanmax(data['dL/dr'])*info.R/info.L,))
     axes[2,1].set_xlabel(r'$r$/$R_*$')
 
     #settings aesthetics for all plots
-    for i, ax in enumerate(axes.flatten()):
+    for i, ax in enumerate(fig.axes):
+        ax.axvspan(0.85,1,color='lightgrey',alpha=0.5,lw=0)
+
+        ax.tick_params(direction='in', which='both', right=True, top=True)
+
         ax.set_xlim(0,1)
         ax.xaxis.set_major_locator(tk.MultipleLocator(0.2))
-        ax.xaxis.set_minor_locator(tk.MultipleLocator(0.1))
-        #ax.tick_params(which='major', length=7)
-        #ax.tick_params(which='minor', length=4)
+        ax.xaxis.set_minor_locator(tk.MultipleLocator(0.05))
+
+        if i in [0,1]:
+            ax.yaxis.set_major_locator(tk.MultipleLocator(0.2))
+        elif i in [2, 3]:
+            ax.yaxis.set_major_locator(tk.MultipleLocator(2))
+        else:
+            ax.yaxis.set_major_locator(tk.MultipleLocator(5))
+
+        if i not in [3,4]:
+            ax.tick_params(labelbottom = False)
+
+        ax.yaxis.set_minor_locator(tk.AutoMinorLocator())
 
 
     if savepath != "":
@@ -140,5 +156,6 @@ if __name__ == '__main__':
     highmass, lowmass, summary = load_data()
     for i, data in enumerate([highmass, lowmass]):
         info = summary.iloc[i,:]
-        savepath = os.path.join(s.plots_folder, f'Test_{i}.png')
+        one = 'high' if i == 0 else 'low'
+        savepath = os.path.join(s.plots_folder, f'Broderick_{one}mass.png')
         plot_star(data, info = info, savepath = savepath)
