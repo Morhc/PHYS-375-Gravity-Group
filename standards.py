@@ -27,9 +27,9 @@ class Standards:
 
     # Project specific constants
     gamma = -2/3 # not sure about this value
-    X = 1.00 # need to adjust these values. Ensure that X+Y+Z = 1
-    Y = 0.00
-    Z = 0.00
+    X = 0.73 # need to adjust these values. Ensure that X+Y+Z = 1
+    Y = 0.025
+    Z = 0.02
     mu = 1/(2*X + 0.75*Y + 0.5*Z)
 
     #scaling constants
