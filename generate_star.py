@@ -7,19 +7,6 @@ from standards import Standards as s
 import tools as tools
 import scipy.integrate as int
 
-# Initial conditions
-M0 = 0
-L0 = 0
-rho0 = rho_c = 50 # we will vary rho_c to satisfy the surface boundary condition on the luminosity and surface temperature
-T0 = T_c = 10000 # we will choose Tc to be the MS paramter
-y0 = np.zeros(4)
-y0 = rho0,T0,M0,L0
-
-r_init = 0.0000001 # intial value for the range of radii
-r_fin = 10000000 # final values for the range of radii
-steps = 10000 # number of steps we want the integration to go through
-del_tau = 1 # intial value for del_tau
-M_vals = [0]
 
 def solveODEs(r_init, r_fin, y0, steps):
     '''Function to solve the ODEs (equation 2 in the project description)'''
@@ -41,8 +28,24 @@ def solveODEs(r_init, r_fin, y0, steps):
     return (r,rho,T,M,L)
 
 
-y0 = rho0,T0,M0,L0
-test = solveODEs(0.01, 1000, y0, 100)
+# Setting the Initial conditions
+r_initial = 1
+r_final = 1e5
+steps = 1000
+
+rho_c = 77750 # (in kg/m^3) we will vary rho_c to satisfy the surface boundary condition on the luminosity and surface temperature
+Tc = 2e7 # (core temperature in K) we will choose Tc to be the MS paramter
+M0 = (4/3)*np.pi*(r_initial**3)*rho_c
+L0 = (4/3)*np.pi*(r_initial**3)*rho_c*tools.epsilon(rho_c, Tc)
+tau0 = tools.kappa(rho_c, Tc)*rho_c*r_initial
+
+y0 = np.zeros(5)
+y0 = rho_c,Tc,M0,L0,tau0
+
+del_tau = tools.del_tau(rho_c,Tc,r_initial,M0,L0) # intial value for del_tau
+M_vals = [M0]
+
+test = tools.RK4Method(r_initial,r_final,y0,steps)
 
 
 

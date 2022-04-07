@@ -23,29 +23,22 @@ def load_data():
 
 
 def dydr(r,y) :
-    """Defining the 4/5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
+    """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
        matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
     """
     rho = y[0]
     T = y[1]
     M = y[2]
     L = y[3]
-    #tau = y[4]
+    tau = y[4]
 
     # The five ODEs we are trying to solve (equation 2)
-    dydr = np.zeros(4) # changed to 4 as the tau DE is commented out
+    dydr = np.zeros(5)
     dydr[0] = drho_dr(rho, T, r, M,L)
     dydr[1] = dT_dr(rho, T, r, L, M)
     dydr[2] = dM_dr(rho, r)
     dydr[3] = dL_dr(rho , T, r)
-    #dydr[4] = dtau_dr(rho, T)
-
-    # dydr = np.zeros(5)
-    # dydr[0] = -(G*y[2]*y[0]/r**2 + dP_dT(y[0], y[1], r)*dydr[1])/(dP_drho(y[0], y[1], r, y[2])) #Determine PDEs used (Could be as simple as subbing eq 7 from project instructions)
-    # dydr[1] = -np.min( (3*kappa(y[0], y[1])*y[0]*y[3]/(16*np.pi*s.a*s.c*y[1]**3*r**2)), (1-1/s.gamma)*(y[1]*s.G*y[2]*y[0])/(P*r**2) ) # gamma is defined in standards.py. Someone please check whether I called the standards class correctly - DP
-    # dydr[2] = 4*np.pi*r**2*y[0] # mass differential equation
-    # dydr[3] = 4*np.pi*r**2*y[0]*epsilon(y[0], y[1]) # Added an epsilon fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
-    # dydr[4] = kappa(y[0], y[1])*y[0] # Added a kappa fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
+    dydr[4] = dtau_dr(rho, T)
 
     return dydr
 
@@ -55,17 +48,17 @@ def RK4Method(ri,rf,y0,h):
     """
 
     #Setting up r and y
-    steps = int(rf-ri)/h
+    steps = int((rf-ri)/h)
     r = np.linspace(ri,rf,steps)
-    y = np.zeros(len(r),4) # changed to 4 as the tau line is commented out
+    y = np.zeros( (5, len(r)) )
 
     #initial conditions
 
-    y[0,0] = y0[0]   # intial rho?
-    y[0,1] = y0[1]  # inital temp?
-    y[0,2] = y0[2] # inital mass? - centre boundary condition
-    y[0,3] = y0[3]  # intial luminosity? - centre boundary condition
-    #y[0,4] = y0[4]  # inital optical depth (tau)?
+    y[0,0] = y0[0]   # intial rho
+    y[0,1] = y0[1]  # inital temp
+    y[0,2] = y0[2] # inital mass - centre boundary condition
+    y[0,3] = y0[3]  # intial luminosity?- centre boundary condition
+    y[0,4] = y0[4]  # inital optical depth (tau)
 
 
 
@@ -112,7 +105,7 @@ def epsilon(rho, T):
     T_6 = T/1e6
 
     e_pp = (1.07e-7)*rho_5*np.power(s.X,2)*np.power(T_6,4) # output vale is units of W/kg
-    e_cno = (8.24e-26)*rho_5*s.X*X_CNO*np.power(T_6, 19.9) # output vale is units of W/kg
+    e_cno = (8.24e-26)*rho_5*s.X*X_CNO*( (T_6)**(19.9) ) # output vale is units of W/kg
 
     e = e_pp + e_cno
 
@@ -123,10 +116,9 @@ def kappa(rho, T):
     rho_3 = rho/1e3
 
     kappa_es = 0.028*(1 + s.X)  # units of m^2/kg
-    kappa_ff = (1.0e24)*(s.Z + 0.0001)*np.power(rho_3,0.7)*np.power(T,-3.5) # Z would need to be a globally defined variable # units of m^2/kg
-    kappa_Hminus = (2.5e-32)*(s.Z / 0.02)*np.power(rho_3,0.5)*np.power(T,9) # units of m^2/kg
+    kappa_ff = (1.0e24)*(s.Z + 0.0001)*( (rho_3)**(0.7) )*( (T)**(-3.5) ) # Z would need to be a globally defined variable # units of m^2/kg
+    kappa_Hminus = (2.5e-32)*(s.Z / 0.02)*( (rho_3)**(0.5) )*( (T)**(9) ) # units of m^2/kg
 
-    print(kappa_Hminus)
     # splitting the term into two
     A = 1/kappa_Hminus
     B = 1/max(kappa_es,kappa_ff)
@@ -136,7 +128,7 @@ def kappa(rho, T):
 def pressure(rho, T):
     '''Calcualting the pressure as described by equation 5 and 6 '''
 
-    P_degenerate = np.power(3*np.pi**2, 2/3)*np.power(s.hbar,2)*np.power(rho,5/3) / 5*s.me*np.power(s.mp, 5/3)
+    P_degenerate = ( (3*np.pi**2)**(2/3) )*np.power(s.hbar,2)*( (rho)**(5/3) ) / 5*s.me*( (s.mp)**(5/3) )
     P_ideal = rho*s.k*T / s.mu*s.mp
     P_photongas = s.a*np.power(T,4) / 3
 
@@ -191,7 +183,13 @@ def drho_dr(rho, T, r, M,L):
 
     return ( -(A+B)/C )
 
+def del_tau(rho,T,r,M,L):
+    '''This fucntion will calcualte the opacity proxy'''
+    return kappa(rho,T)*(rho**2) / abs(drho_dr(T,r,rho,L,M))
+
+# ---------------------------------
 # Modification of Gravity Section:
+# ---------------------------------
 
 # Lambda Guess': global variables
 lam_guess = 1000 # Guess for constraints of lambda, from negative int to positive int
