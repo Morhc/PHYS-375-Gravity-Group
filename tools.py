@@ -237,8 +237,8 @@ def dydr_scaled(r,y):
     """
 
     dydr = np.zeros(5)
-    dydr[0] = -((g_scaled(r,y,lam_guess,lam_lim_guess) * y[0]) + partialP/partialT*dydr[1])/partialP/partialrho # g replaces GM/r**2 based on scale limits
-    dydr[1] = -np.min( (3*kappa(y[0], y[1])*y[0]*y[3]/(16*np.pi*s.a*s.c*y[1]**3*r**2)), (1-1/s.gamma)* (y[1] / P) * (g_scaled(r,y,lam_guess,lam_lim_guess) * y[0]) ) # # g replaces GM/r**2 based on scale limits
+    dydr[0] = -((g_scaled(r,y,lam_guess,lam_lim_guess) * y[0]) + dP_dT(y[0], y[1], r)*dydr[1])/(dP_drho(y[0], y[1], r, y[2])) # g replaces GM/r**2 based on scale limits
+    dydr[1] = -np.min( (3*kappa(y[0], y[1])*y[0]*y[3]/(16*np.pi*s.a*s.c*y[1]**3*r**2)), (1-1/s.gamma)*(y[1]*(g_scaled(r,y,lam_guess,lam_lim_guess) * y[0]))/(P) ) # g replaces GM/r**2 based on scale limits
 
     # the other ODEs remain the same
 
