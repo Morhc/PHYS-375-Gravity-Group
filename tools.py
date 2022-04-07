@@ -188,3 +188,64 @@ def drho_dr(rho, T, r, M,L):
     C = dP_drho(rho, T, r, M)
 
     return ( -(A+B)/C )
+
+# Modification of Gravity Section:
+
+# Lambda Guess': global variables
+lam_guess = 1000 # Guess for constraints of lambda, from negative int to positive int
+lam_lim_guess = 2 # Guess for scaling factor, limit is the length of lambda_values / lambda_limit_guess
+
+# Function to scale g
+def g_scaled(r,y,lam_guess,lam_lim_guess): # Based on equation 19
+    '''
+        Inputs (given as a function call of RK4): 
+            r - Array (Radius), 
+            y - Array (for y[2]: Mass)
+            lam_guess - Int (Global Variable)
+            lam_lim_guess - Int (Global Variable)
+
+        Returns: 
+            g scaling as r^-3 below limit 
+            g non-scaled above chosen limit 
+    '''
+
+    # Lambda constraints
+    lambda_vals = np.linspace(-lam_guess, lam_guess, (len(r))) # values of lambda ranging from guesses
+    limit = (len(lambda_vals)) / lam_lim_guess # limit arbitrarily chosen, can change according to limit consideration...?
+
+    # Container for final values of g (scaled or unscaled)
+    final_g = []
+    n = 0 # Counter for iteration loop
+
+    # Logic for lambda limit:
+    while n <= (len(r) - 1):
+        for i in (lambda_vals[0:limit]):
+            final_g.append( ((s.G * y[2][i]) / (r[i] ** 2)) + ((s.G * y[2][i]) * lambda_vals[i] / (r[i] ** 3)) ) 
+        for j in (lambda_vals[limit:]):
+            final_g.append(((s.G * y[2][j]) / (r[j] ** 2)))
+    
+        n += 1
+
+    return final_g
+
+# Scaled dydr function call
+def dydr_scaled(r,y):
+    """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
+       matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
+
+       ** Built upon dydr to including scaling for g **
+    """
+
+    dydr = np.zeros(5)
+    dydr[0] = -((g_scaled(r,y,lam_guess,lam_lim_guess) * y[0]) + partialP/partialT*dydr[1])/partialP/partialrho # g replaces GM/r**2 based on scale limits
+    dydr[1] = -np.min( (3*kappa(y[0], y[1])*y[0]*y[3]/(16*np.pi*s.a*s.c*y[1]**3*r**2)), (1-1/s.gamma)* (y[1] / P) * (g_scaled(r,y,lam_guess,lam_lim_guess) * y[0]) ) # # g replaces GM/r**2 based on scale limits
+
+    # the other ODEs remain the same
+
+    dydr[2] = 4*np.pi*r**2*y[0] # mass differential equation
+    dydr[3] = 4*np.pi*r**2*y[0]*epsilon(y[0], y[1]) # Added an epsilon fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
+    dydr[4] = kappa(y[0], y[1])*y[0] # Added a kappa fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
+
+    return dydr
+
+# Finally, run RK4 method for new scaled values
