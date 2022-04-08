@@ -29,43 +29,48 @@ def solveODEs(r_init, r_fin, y0, steps):
 
 
 # Setting the Initial conditions
-r_initial = 1
-r_final = 1e5
-steps = 1000
+r = 1 # starting radius for integration
+steps = h = 1000 # inital step size
 
 rho_c = 77750 # (in kg/m^3) we will vary rho_c to satisfy the surface boundary condition on the luminosity and surface temperature
-Tc = 2e7 # (core temperature in K) we will choose Tc to be the MS paramter
-M0 = (4/3)*np.pi*(r_initial**3)*rho_c
-L0 = (4/3)*np.pi*(r_initial**3)*rho_c*tools.epsilon(rho_c, Tc)
-tau0 = tools.kappa(rho_c, Tc)*rho_c*r_initial
+Tc = 10486 # (core temperature in K) we will choose Tc to be the MS paramter
+M = (4/3)*np.pi*(r**3)*rho_c # calculating the intial mass using the initial radius and densities specified
+L = (4/3)*np.pi*(r**3)*rho_c*tools.epsilon(rho_c, Tc) # calculating the intial luminosity using the initial radius and densities specified
+tau = tools.kappa(rho_c, Tc)*rho_c*r # calculating the intial tau using the initial radius and densities specified
+del_tau = tools.del_tau(rho_c,Tc,r,M,L) # intial value for the opacity proxy
 
-y0 = np.zeros(5)
-y0 = rho_c,Tc,M0,L0,tau0
+del_tau_threshold = 1e-5 # threshold value for the opacity proxy
+MassLimit = s.Msun*(1e3) # mass limit for integration
 
-del_tau = tools.del_tau(rho_c,Tc,r_initial,M0,L0) # intial value for del_tau
-M_vals = [M0]
+y = np.zeros(5)
+y = rho_c, Tc, M, L, tau
 
-test = tools.RK4Method(r_initial,r_final,y0,steps)
+r_values = [r] # will store all radius values
+y_values = [y] # will store values for rho, T, M, l and tau respectively
 
+# ------------------------
+# Section 2.2.1 (Step 2)
+# ------------------------
+# Now we account for the two main complications which arises from the behaviour near r = 0 and the practical determination of R_star
 
+# We want to integrate the ODEs until del_tau (defined in eqution 16) is << 1 and we introdue a mass limit. We stop when M > 10^3 solar masses
+while (del_tau >  del_tau_threshold) and (float(M) < float(MassLimit)):
 
-# # ------------------------
-# # Section 2.2.1 (Step 2)
-# # ------------------------
-#
-# # Now we account for the two main complications which arises from the behaviour near r = 0 and the practical determination of R_star
-#
-# # We want to integrate the ODEs until del_tau (defined in eqution 16) is << 1 and we introdue a mass limit. We stop when M > 10^3 solar masses
-# if (abs(del_tau) > 1e-5) and (max(M_vals) < 1e3*s.Msun):
-#
-#     solns = solveODEs(r_init, r_fin, y0, steps) # calling the solveODEs function to solve the ODEs using RK45
-#
-#     # Storing the results of the ODE integration
-#     r_vals = solns[0]
-#     rho_vals = solns[1]
-#     T_vals = solns[2]
-#     M_vals = solns[3]
-#     L_vals = solns[4]
-#     tau_vals = solns[5]
-#
-#     # Recalculating the value for del_tau (as defined by equation 16)
+    y5,hnew = tools.RKF45Method_adaptive(tools.dydr,r,y,h)
+
+    r_values.append(r + h)
+    y_values.append(y5)
+
+    # Channging variales around for next iteration of the 'while' loop
+    # I.e., hnew becomes h for the next iteration and y5 becomes y for the next iteration
+    h = hnew
+    y = y5
+    r += h
+
+    rho = y[0]
+    T = y[1]
+    M = y[2]
+    L = y[3]
+    tau = y[4]
+
+    del_tau = tools.del_tau(rho,T,r,M,L)

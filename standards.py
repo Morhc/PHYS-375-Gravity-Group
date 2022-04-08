@@ -14,23 +14,23 @@ class Standards:
     Lsun = 3.839e26
 
     #Physical constants
-    G = 6.673e-11
+    G = 6.673e-11 # [Nm**2 /kg**2]
     e = 1.602e-19 #charge of the electron
-    c = 2.998e8
-    h = 6.626e-34
-    hbar = 1.055e-34
-    k = 1.381e-23 #Boltzmann constant
-    sb = 5.670e-8 #Stefan-Boltzmann constant
-    mp = 1.673-27
-    me = 9.109e-31
+    c = 2.998e8 # [m/s]
+    h = 6.626e-34 #[J*s]
+    hbar = 1.055e-34 #[J*s]
+    k = 1.381e-23 #Boltzmann constant [m**2*kg/s**2*K]
+    sb = 5.670e-8 #Stefan-Boltzmann constant [W/ (m**2 * K**4) ]
+    mp = 1.673e-27 # [kg]
+    me = 9.109e-31 # [kg]
     a = 4*sb/c #Radiation constant (see dT/dr differential)
 
     # Project specific constants
-    gamma = -2/3 # not sure about this value
+    gamma = 5/3 # ideal gas
     X = 0.73 # need to adjust these values. Ensure that X+Y+Z = 1
     Y = 0.25
     Z = 0.02
-    mu = 1/(2*X + 0.75*Y + 0.5*Z)
+    mu = (2*X + 0.75*Y + 0.5*Z)**(-1)
 
     #scaling constants
     g_to_kg = 1000
