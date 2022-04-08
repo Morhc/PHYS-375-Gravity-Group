@@ -8,6 +8,7 @@ import tools as tools
 import scipy.integrate as int
 import matplotlib.pyplot as plt
 
+np.seterr(all='ignore')
 
 def solveODEs(r_init, r_fin, y0, steps):
     '''Function to solve the ODEs (equation 2 in the project description)'''
@@ -71,14 +72,40 @@ T_Star = T_values[index_at_surface]
 M_Star = M_values[index_at_surface]
 L_Star = L_values[index_at_surface]
 
+# Saving all values related to pressure
+P_values = tools.pressure(rho_values, T_values)
+P_degen_values = tools.P_degen(rho_values)
+P_ideal_values = tools.P_ideal(rho_values, T_values)
+P_photongas_values = tools.P_photongas(T_values)
+P_c = tools.pressure(rho_c, Tc) # calcualting the central pressure
+
 print('R_star is', R_Star/s.Rsun)
 print('Rho_star is', Rho_Star)
 print('T_star is', T_Star)
-print('M_star is', M_Star/s.Msun)
-print('L_star is', L_Star/s.Lsun)
+print('M_star/M_sun is', M_Star/s.Msun)
+print('L_star/L_sun is', L_Star/s.Lsun)
+print('L_star is', L_Star)
+print('theoretical luminosity', 4*np.pi*s.sb*R_Star**2*T_Star**4)
 
+# plt.plot(r_values/R_Star, rho_values/rho_c, 'k' ,label='rho')
+# plt.plot(r_values/R_Star, L_values/L_Star, '-.b',label='L')
+# plt.plot(r_values/R_Star, M_values/M_Star, '-g',label='M')
+# plt.plot(r_values/R_Star, T_values/Tc, ':r', label='T')
+# plt.xlim(0,1)
+# plt.legend(loc='best')
+# plt.show()
+#
+# plt.plot(r_values/R_Star, P_values/P_c, 'k' ,label='P')
+# plt.plot(r_values/R_Star, P_degen_values/P_c, '--r' ,label='P_degen')
+# plt.plot(r_values/R_Star, P_ideal_values/P_c, '-.b' ,label='P_ideal')
+# plt.plot(r_values/R_Star, P_photongas_values/P_c, ':g' ,label='P_photongas')
+# plt.xlim(0,1)
+# plt.legend(loc='best')
+# plt.show()
 
-
+################################################################################
+############################     DEPREACATED CODE    ###########################
+################################################################################
 # ------------------------
 # Section 2.2.1 (Step 2)
 # ------------------------

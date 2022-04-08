@@ -159,10 +159,16 @@ def kappa(rho, T):
 
     return ( np.power(A+B,-1) )
 
+def P_degen(rho):
+    '''Calculate the degenerate pressure'''
+    return ( ( (3*np.pi**2)**(2/3) / 5 )*( s.hbar**2 / s.me )*( rho / s.mp)**(5/3) )
+
 def P_ideal(rho,T):
+    '''Calculate the ideal gas pressure'''
     return (rho*s.k*T/s.mu*s.mp)
 
 def P_photongas(T):
+    '''Calculate the photon gas pressure'''
     return ((s.a*T**4)/3)
 
 def pressure(rho, T):
