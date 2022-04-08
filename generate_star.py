@@ -54,7 +54,7 @@ y_values = [y] # will store values for rho, T, M, l and tau respectively
 # Now we account for the two main complications which arises from the behaviour near r = 0 and the practical determination of R_star
 
 # We want to integrate the ODEs until del_tau (defined in eqution 16) is << 1 and we introdue a mass limit. We stop when M > 10^3 solar masses
-while (del_tau >  del_tau_threshold) and (float(M) < float(MassLimit)):
+while (np.any(del_tau) >  del_tau_threshold) and (M < MassLimit):
 
     y5,hnew = tools.RKF45Method_adaptive(tools.dydr,r,y,h)
 
@@ -73,5 +73,4 @@ while (del_tau >  del_tau_threshold) and (float(M) < float(MassLimit)):
     L = y[3]
     tau = y[4]
 
-    del_tau = tools.del_tau(rho,T,r,M,L)
-    
+    del_tau = tools.del_tau(rho,T, r, M, L )

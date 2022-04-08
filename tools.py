@@ -221,7 +221,7 @@ def drho_dr(rho, T, r, M,L):
 
 def del_tau(rho,T,r,M,L):
     '''This fucntion will calcualte the opacity proxy'''
-    return (kappa(rho,T)*(rho**2) / abs(drho_dr(rho, T, r, M,L)))
+    return kappa(rho,T)*(rho**2) / (abs(drho_dr(rho, T, r, M,L)))
 
 # ---------------------------------
 # Modification of Gravity Section:
