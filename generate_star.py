@@ -219,10 +219,14 @@ P_photongas_values = tools.P_photongas(T_values)
 P_c = tools.pressure(rho_c, Tc) # calcualting the central pressure
 
 # Saving all values related to kappa
-kappa_values = tools.kappa(rho_values, T_values)
-kappa_es_values = tools.kappa_es()
-kappa_ff_values = tools.kappa_ff(rho_values, T_values)
-kappa_Hminus_values = tools.kappa_Hminus(rho_values, T_values)
+# Note all of these kappa values are in units of m**2/kg, will need to change to cm**2/g when plotting
+kappa_values = []
+for i in range(0, len(rho_values)):
+    kappa_values.append( tools.kappa(rho_values[i], T_values[i]) )
+
+kappa_ff_values = tools.kappa_ff(rho_values, T_values) * 10
+kappa_es_values = np.full(len(kappa_ff_values),tools.kappa_es() * 10)
+kappa_Hminus_values = tools.kappa_Hminus(rho_values, T_values) * 10
 
 print('R_star is', R_Star/s.Rsun)
 print('Rho_star is', Rho_Star)
@@ -232,7 +236,7 @@ print('L_star/L_sun is', L_Star/s.Lsun)
 print('L_star is', L_Star)
 print('rho_c is', rho_c)
 
-
+# Plotting normalized density, L,M, and T
 plt.plot(r_values/R_Star, rho_values/rho_c, 'k' ,label='rho')
 plt.plot(r_values/R_Star, L_values/L_Star, '-.b',label='L')
 plt.plot(r_values/R_Star, M_values/M_Star, '-g',label='M')
@@ -241,10 +245,21 @@ plt.xlim(0,1)
 plt.legend(loc='best')
 plt.show()
 
+# Plotting pressure results
 plt.plot(r_values/R_Star, P_values/P_c, 'k' ,label='P')
 plt.plot(r_values/R_Star, P_degen_values/P_c, '--r' ,label='P_degen')
 plt.plot(r_values/R_Star, P_ideal_values/P_c, '-.b' ,label='P_ideal')
 plt.plot(r_values/R_Star, P_photongas_values/P_c, ':g' ,label='P_photongas')
+plt.xlim(0,1)
+plt.legend(loc='best')
+plt.show()
+
+# Plotting kappa results
+# In cm**2/g ##To convert from m**2/kg to cm**2/g we multiply by 10
+plt.plot(r_values/R_Star, np.log10( kappa_values), 'k' ,label='kappa')
+plt.plot(r_values/R_Star, np.log10( kappa_es_values), '--b' ,label='kappa_es')
+plt.plot(r_values/R_Star, np.log10( kappa_ff_values), ':g' ,label='kappa_ff')
+plt.plot(r_values/R_Star, np.log10( kappa_Hminus_values), '-.r' ,label='kappa_Hminus')
 plt.xlim(0,1)
 plt.legend(loc='best')
 plt.show()
