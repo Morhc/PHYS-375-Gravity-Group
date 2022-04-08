@@ -271,9 +271,9 @@ plt.legend(loc='best')
 plt.show()
 
 # Plotting all dL/dr results
-plt.plot(r_values/R_Star, dL_dr_values*(L_Star/R_Star), 'k' ,label='dL/dr')
-plt.plot(r_values/R_Star, dL_dr_pp_values*(L_Star/R_Star), '--r' ,label='dL/dr PP')
-plt.plot(r_values/R_Star, dL_dr_cno_values*(L_Star/R_Star), '-.b' ,label='dL/dr CNO')
+plt.plot(r_values/R_Star, dL_dr_values*(R_Star/L_Star), 'k' ,label='dL/dr')
+plt.plot(r_values/R_Star, dL_dr_pp_values*(R_Star/L_Star), '--r' ,label='dL/dr PP')
+plt.plot(r_values/R_Star, dL_dr_cno_values*(R_Star/L_Star), '-.b' ,label='dL/dr CNO')
 plt.xlim(0,1)
 plt.legend(loc='best')
 plt.show()
