@@ -218,6 +218,25 @@ def dtau_dr(rho, T):
 
     return ( kappa(rho, T)*rho )
 
+def dL_dr_PP(rho,T,r):
+    '''This function will calcualte dL/dr using only e_pp'''
+    rho_5 = rho/1e5
+    T_6 = T/1e6
+
+    e_pp = (1.07e-7)*rho_5*np.power(s.X,2)*np.power(T_6,4) # output vale is units of W/kg
+
+    return ( 4*np.pi*(r**2)*rho*e_pp )
+
+def dL_dr_CNO(rho,T,r):
+    '''This function will calcualte dL/dr using only e_cno'''
+    X_CNO = 0.03*s.X # X would need to be a globally defined variable
+    rho_5 = rho/1e5
+    T_6 = T/1e6
+
+    e_cno = (8.24e-26)*rho_5*s.X*X_CNO*( (T_6)**(19.9) ) # output vale is units of W/kg
+
+    return ( 4*np.pi*(r**2)*rho*e_cno )
+
 def dL_dr(rho , T, r):
     '''This function will calcualte the luminosity DE'''
 

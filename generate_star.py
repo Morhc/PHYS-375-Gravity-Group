@@ -229,6 +229,11 @@ kappa_ff_values = tools.kappa_ff(rho_values, T_values) * 10
 kappa_es_values = np.full(len(kappa_ff_values),tools.kappa_es() * 10)
 kappa_Hminus_values = tools.kappa_Hminus(rho_values, T_values) * 10
 
+# Saving all values related to dL/dr
+dL_dr_values = tools.dL_dr(rho_values , T_values, r_values)
+dL_dr_pp_values = tools.dL_dr_PP(rho_values , T_values, r_values)
+dL_dr_cno_values = tools.dL_dr_CNO(rho_values , T_values, r_values)
+
 print('R_star is', R_Star/s.Rsun)
 print('Rho_star is', Rho_Star)
 print('T_star is', T_Star)
@@ -264,6 +269,16 @@ plt.plot(r_values/R_Star, np.log10( kappa_Hminus_values), '-.r' ,label='kappa_Hm
 plt.xlim(0,1)
 plt.legend(loc='best')
 plt.show()
+
+# Plotting all dL/dr results
+plt.plot(r_values/R_Star, dL_dr_values*(L_Star/R_Star), 'k' ,label='dL/dr')
+plt.plot(r_values/R_Star, dL_dr_pp_values*(L_Star/R_Star), '--r' ,label='dL/dr PP')
+plt.plot(r_values/R_Star, dL_dr_cno_values*(L_Star/R_Star), '-.b' ,label='dL/dr CNO')
+plt.xlim(0,1)
+plt.legend(loc='best')
+plt.show()
+
+
 
 ################################################################################
 ############################     DEPREACATED CODE    ###########################
