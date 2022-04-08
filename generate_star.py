@@ -35,7 +35,7 @@ r_initial = 1
 r_final = 1e10
 
 rho_c = 77750 # (in kg/m^3) we will vary rho_c to satisfy the surface boundary condition on the luminosity and surface temperature
-Tc = 10486 # (core temperature in K) we will choose Tc to be the MS paramter
+Tc = 2e7 # (core temperature in K) we will choose Tc to be the MS paramter
 M = (4/3)*np.pi*(r**3)*rho_c # calculating the intial mass using the initial radius and densities specified
 L = (4/3)*np.pi*(r**3)*rho_c*tools.epsilon(rho_c, Tc) # calculating the intial luminosity using the initial radius and densities specified
 tau = tools.kappa(rho_c, Tc)*rho_c*r # calculating the intial tau using the initial radius and densities specified
@@ -79,13 +79,13 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
 
     rhoc_mid = (rhoc_min + rhoc_max)/2 # determine mid point for rhoc given the min and max inputs
 
-    y_min = y # new intial value array for rhoc_min
+    y_min = np.array(y) # new intial value array for rhoc_min
     y_min[0] = rhoc_min
 
-    y_mid = y # new intial value array for rhoc_mid
+    y_mid = np.array(y) # new intial value array for rhoc_mid
     y_mid[0] = rhoc_mid
 
-    y_max = y # new intial value array for rhoc_max
+    y_max = np.array(y) # new intial value array for rhoc_max
     y_max[0] = rhoc_max
 
     # Now we want to use rhoc min,mid, and max to solve the ODEs individually
@@ -137,7 +137,74 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
     fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
     fmax = tools.luminosity_check(R_Star_max, L_Star_max, T_Star_max)
 
+    # print(fmin)
+    # print(fmid)
+    # print(fmax)
 
+    # Note: if 'f' is > 0 then our L(R_star) is greater than the theoretical
+
+    if fmin*fmax > 0:
+        return (print ("Change Initial conditions"))
+    else:
+        current = rhoc_mid
+        previous = 0
+        diff = 2
+
+        while (abs(diff)>1):
+            if fmin*fmid<0: # Either fmin or fmid overshot while the other undershot
+                rhoc_max = rhoc_mid
+                rhoc_mid = (rhoc_min+rhoc_max)/2
+
+                # Now we re-solve ODEs using the new rhoc_mid
+                y_mid = np.array(y) # new intial value array for rhoc_mid
+                y_mid[0] = rhoc_mid
+
+                solutions_mid = solveODEs(r_initial, r_final, y_mid, steps)
+                tau_values_mid = solutions_mid[5]
+                tau_infinity_mid = tau_values_mid[len(tau_values_mid)-1]
+                difference_mid = []
+
+                for n in range(0,len(tau_values_mid)-2):
+                    difference_mid.append(tau_infinity_mid - tau_values_mid[n] - (2/3) )
+
+                index_at_surface_mid = np.argmin(difference_mid)
+
+
+                R_Star_mid = solutions_mid[0][index_at_surface_mid]
+                L_Star_mid = solutions_mid[4][index_at_surface_mid]
+                T_Star_mid = solutions_mid[2][index_at_surface_mid]
+
+                fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
+
+            elif fmid*fmax <0: # Either fmid or fmax overshot while the other undershot
+                rhoc_min = rhoc_mid
+                rhoc_mid = (rhoc_min+rhoc_max)/2
+
+                # Now we re-solve ODEs using the new rhoc_mid
+                y_mid =  np.array(y) # new intial value array for rhoc_mid
+                y_mid[0] = rhoc_mid
+
+                solutions_mid = solveODEs(r_initial, r_final, y_mid, steps)
+                tau_values_mid = solutions_mid[5]
+                tau_infinity_mid = tau_values_mid[len(tau_values_mid)-1]
+                difference_mid = []
+
+                for n in range(0,len(tau_values_mid)-2):
+                    difference_mid.append(tau_infinity_mid - tau_values_mid[n] - (2/3) )
+
+                index_at_surface_mid = np.argmin(difference_mid)
+
+
+                R_Star_mid = solutions_mid[0][index_at_surface_mid]
+                L_Star_mid = solutions_mid[4][index_at_surface_mid]
+                T_Star_mid = solutions_mid[2][index_at_surface_mid]
+
+                fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
+
+            previous = current
+            current = rhoc_mid
+            diff = current - previous
+    return (rhoc_mid)
 
 
 # Saving all values related to pressure
@@ -158,6 +225,11 @@ print('theoretical luminosity', 4*np.pi*s.sb*R_Star**2*T_Star**4)
 print("  ")
 f = tools.luminosity_check(R_Star, L_Star, T_Star)
 print(f)
+
+
+rhoc = bisection(1e3, 1e6, 1, 100000000, y, 10000)
+print(rhoc)
+
 # plt.plot(r_values/R_Star, rho_values/rho_c, 'k' ,label='rho')
 # plt.plot(r_values/R_Star, L_values/L_Star, '-.b',label='L')
 # plt.plot(r_values/R_Star, M_values/M_Star, '-g',label='M')
