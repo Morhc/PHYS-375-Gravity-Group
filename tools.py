@@ -264,23 +264,50 @@ def g_scaled(r,y,lam_guess,lam_lim_guess): # Based on equation 19
 
     return final_g
 
-# Scaled dydr function call
-def dydr_scaled(r,y):
+# Edit drho_dr and dTdr from above to account for gravity scaling
+
+def dT_dr_scaled(rho, T, r, L, M): # Built upon dT_dr function
+    '''This function will calculate the termperature DE with scaled lambda factor for gravity
+        Extrapolation of dT_dr function
+    '''
+
+    A = 3*kappa(rho, T)*rho*L/(16*np.pi*(s.sb*4)*(T**3)*(r**2))
+    B = (1-1/s.gamma)*(T/pressure(rho,T))*((g_scaled(r,M,lam_guess,lam_lim_guess)*rho)) # y is replaced with Mass
+    min_value = -np.minimum(A,B)
+
+    return (min_value)
+
+def drho_dr_scaled(rho, T, r, M,L):
+    '''This fucntion will calculate the density DE with scaled lambda factor for gravity
+        Extrapolation of drho_dr function
+    '''
+
+    A = ((g_scaled(r,M,lam_guess,lam_lim_guess)*rho))
+    B = (dP_dT(rho, T) )*(dT_dr_scaled(rho, T, r, L, M))
+    C = dP_drho(rho, T)
+
+    return ( (-(A+B))/C )
+
+# Edit dydr to account for gravitational scaling
+def dydr_gscaled(r,y) :
     """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
        matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
 
-       ** Built upon dydr to including scaling for g **
+       Edited to account for gravitational scaling based on lambda
     """
+    rho = y[0]
+    T = y[1]
+    M = y[2]
+    L = y[3]
+    tau = y[4]
 
+    # The five ODEs we are trying to solve (equation 2)
     dydr = np.zeros(5)
-    dydr[0] = -((g_scaled(r,y,lam_guess,lam_lim_guess) * y[0]) + dP_dT(y[0], y[1], r)*dydr[1])/(dP_drho(y[0], y[1], r, y[2])) # g replaces GM/r**2 based on scale limits
-    dydr[1] = -np.min( (3*kappa(y[0], y[1])*y[0]*y[3]/(16*np.pi*s.a*s.c*y[1]**3*r**2)), (1-1/s.gamma)*(y[1]*(g_scaled(r,y,lam_guess,lam_lim_guess) * y[0]))/(P) ) # g replaces GM/r**2 based on scale limits
-
-    # the other ODEs remain the same
-
-    dydr[2] = 4*np.pi*r**2*y[0] # mass differential equation
-    dydr[3] = 4*np.pi*r**2*y[0]*epsilon(y[0], y[1]) # Added an epsilon fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
-    dydr[4] = kappa(y[0], y[1])*y[0] # Added a kappa fucntion which takes rho and temperature. From what I understood y[0] and y[1] should contain those values -DP
+    dydr[0] = drho_dr_scaled(rho, T, r, M,L)
+    dydr[1] = dT_dr_scaled(rho, T, r, L, M)
+    dydr[2] = dM_dr(rho, r)
+    dydr[3] = dL_dr(rho , T, r)
+    dydr[4] = dtau_dr(rho, T)
 
     return dydr
 
