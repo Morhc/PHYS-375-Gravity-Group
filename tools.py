@@ -145,17 +145,32 @@ def epsilon(rho, T):
 
     return (e)
 
-def kappa(rho, T):
-    '''Determing the value for kappa using equation 10,11,12,13 and 14'''
+def kappa_es():
+    '''Calcualte and return the value for kappa_es in m**2/kg'''
+    return (0.028*(1 + s.X))
+
+def kappa_ff(rho, T):
+    '''Calcualte and return the value for kappa_ff in m**2/kg'''
     rho_3 = rho/1e3
 
-    kappa_es = 0.028*(1 + s.X)  # units of m^2/kg
-    kappa_ff = (1.0e24)*(s.Z + 0.0001)*( (rho_3)**(0.7) )*( (T)**(-3.5) ) # Z would need to be a globally defined variable # units of m^2/kg
-    kappa_Hminus = (2.5e-32)*(s.Z / 0.02)*( (rho_3)**(0.5) )*( (T)**(9) ) # units of m^2/kg
+    return ( (1.0e24)*(s.Z + 0.0001)*( (rho_3)**(0.7) )*( (T)**(-3.5) ) )
+
+def kappa_Hminus(rho, T):
+    '''Calcualte and return the value for kappa_Hminus in m**2/kg'''
+    rho_3 = rho/1e3
+
+    return ( (2.5e-32)*(s.Z / 0.02)*( (rho_3)**(0.5) )*( (T)**(9) ) )
+
+def kappa(rho, T):
+    '''Determing the value for kappa using equation 10,11,12,13 and 14'''
+
+    kappa_es_value = kappa_es()
+    kappa_ff_value = kappa_ff(rho, T) # Z would need to be a globally defined variable # units of m^2/kg
+    kappa_Hminus_value = kappa_Hminus(rho,T)
 
     # splitting the term into two
-    A = 1/kappa_Hminus
-    B = 1/max(kappa_es,kappa_ff)
+    A = 1/kappa_Hminus_value
+    B = 1/max(kappa_es_value,kappa_ff_value)
 
     return ( np.power(A+B,-1) )
 
