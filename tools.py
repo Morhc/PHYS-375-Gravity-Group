@@ -235,6 +235,15 @@ def del_tau(rho,T,r,M,L):
     '''This fucntion will calcualte the opacity proxy'''
     return kappa(rho,T)*(rho**2) / (abs(drho_dr(rho, T, r, M,L)))
 
+def luminosity_check(r, L, T):
+    '''This function will check L(R_star) with the theoretical luminosity
+    See equation 17 in the project description
+    '''
+    theoretical = 4*np.pi*s.sb*(r**2)*(T**4)
+    f = (L-theoretical) / np.sqrt(L*theoretical)
+
+    return(f)
+
 # ---------------------------------
 # Modification of Gravity Section:
 # ---------------------------------
