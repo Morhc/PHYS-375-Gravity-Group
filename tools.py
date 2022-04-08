@@ -72,8 +72,7 @@ def RKF45Method_adaptive(f,r,y,h):
     error = abs( y5 - y4)
 
     # Calcuating the new step-sizes
-    hnew = min((0.9)*h*( (error/TE)**(1/5) ))
-
+    hnew = 0.9*h*( (min(error)/TE)**(1/5) )
     return(y5,hnew)
 
 
