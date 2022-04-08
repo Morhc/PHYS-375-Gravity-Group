@@ -159,14 +159,20 @@ def kappa(rho, T):
 
     return ( np.power(A+B,-1) )
 
+def P_ideal(rho,T):
+    return (rho*s.k*T/s.mu*s.mp)
+
+def P_photongas(T):
+    return ((s.a*T**4)/3)
+
 def pressure(rho, T):
     '''Calcualting the pressure as described by equation 5 and 6 '''
 
-    P_degenerate = ( (3*np.pi**2)**(2/3) / 5 )*( s.hbar**2 / s.me )*( rho / s.mp)**(5/3)
-    P_ideal = rho*s.k*T/s.mu*s.mp
-    P_photongas = (s.a*T**4)/3
+    P_deg = P_degen(rho)
+    P_id = P_ideal(rho,T)
+    P_pg = P_photongas(T)
 
-    return ( P_degenerate + P_ideal + P_photongas )
+    return ( P_deg + P_id + P_pg )
 
 def dP_dT(rho, T):
     '''This function will calcualte the partial derivate of pressure with respect to temperature (see equation 5)'''
