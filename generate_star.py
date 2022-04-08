@@ -218,12 +218,19 @@ P_ideal_values = tools.P_ideal(rho_values, T_values)
 P_photongas_values = tools.P_photongas(T_values)
 P_c = tools.pressure(rho_c, Tc) # calcualting the central pressure
 
+# Saving all values related to kappa
+kappa_values = tools.kappa(rho_values, T_values)
+kappa_es_values = tools.kappa_es()
+kappa_ff_values = tools.kappa_ff(rho_values, T_values)
+kappa_Hminus_values = tools.kappa_Hminus(rho_values, T_values)
+
 print('R_star is', R_Star/s.Rsun)
 print('Rho_star is', Rho_Star)
 print('T_star is', T_Star)
 print('M_star/M_sun is', M_Star/s.Msun)
 print('L_star/L_sun is', L_Star/s.Lsun)
 print('L_star is', L_Star)
+print('rho_c is', rho_c)
 
 
 plt.plot(r_values/R_Star, rho_values/rho_c, 'k' ,label='rho')
