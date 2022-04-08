@@ -6,6 +6,7 @@ import pandas as pd
 from standards import Standards as s
 import tools as tools
 import scipy.integrate as int
+import matplotlib.pyplot as plt
 
 
 def solveODEs(r_init, r_fin, y0, steps):
@@ -20,17 +21,17 @@ def solveODEs(r_init, r_fin, y0, steps):
     T = solutions.y[1]
     M = solutions.y[2]
     L = solutions.y[3]
-    #tau = solutions.y[4]
+    tau = solutions.y[4]
     r = solutions.t # t here mean the 'time points' which in this case are the radius values or rvals
 
-    #print(solutions.t) for testing
-
-    return (r,rho,T,M,L)
+    return (r,rho,T,M,L,tau)
 
 
 # Setting the Initial conditions
 r = 1 # starting radius for integration
 steps = h = 1000 # inital step size
+r_initial = 1
+r_final = 1e10
 
 rho_c = 77750 # (in kg/m^3) we will vary rho_c to satisfy the surface boundary condition on the luminosity and surface temperature
 Tc = 10486 # (core temperature in K) we will choose Tc to be the MS paramter
@@ -48,29 +49,63 @@ y = rho_c, Tc, M, L, tau
 r_values = [r] # will store all radius values
 y_values = [y] # will store values for rho, T, M, l and tau respectively
 
+solutions = solveODEs(r_initial, r_final, y, steps)
+
+r_values = solutions[0]
+rho_values = solutions[1]
+T_values = solutions[2]
+M_values = solutions[3]
+L_values = solutions[4]
+tau_values = solutions[5]
+tau_infinity = tau_values[len(tau_values)-1]
+difference = []
+
+for n in range(0,len(tau_values)-2):
+    difference.append(tau_infinity - tau_values[n] - (2/3) )
+
+index_at_surface = np.argmin(difference)
+
+R_Star = r_values[index_at_surface]
+Rho_Star = rho_values[index_at_surface]
+T_Star = T_values[index_at_surface]
+M_Star = M_values[index_at_surface]
+L_Star = L_values[index_at_surface]
+
+print('R_star is', R_Star/s.Rsun)
+print('Rho_star is', Rho_Star)
+print('T_star is', T_Star)
+print('M_star is', M_Star/s.Msun)
+print('L_star is', L_Star/s.Lsun)
+
+
+
 # ------------------------
 # Section 2.2.1 (Step 2)
 # ------------------------
 # Now we account for the two main complications which arises from the behaviour near r = 0 and the practical determination of R_star
 
 # We want to integrate the ODEs until del_tau (defined in eqution 16) is << 1 and we introdue a mass limit. We stop when M > 10^3 solar masses
-while (np.any(del_tau) >  del_tau_threshold) and (M < MassLimit):
 
-    y5,hnew = tools.RKF45Method_adaptive(tools.dydr,r,y,h)
 
-    r_values.append(r + h)
-    y_values.append(y5)
 
-    # Channging variales around for next iteration of the 'while' loop
-    # I.e., hnew becomes h for the next iteration and y5 becomes y for the next iteration
-    h = hnew
-    y = y5
-    r += h
 
-    rho = y[0]
-    T = y[1]
-    M = y[2]
-    L = y[3]
-    tau = y[4]
-
-    del_tau = tools.del_tau(rho,T, r, M, L )
+# while (np.any(del_tau) >  del_tau_threshold) and (M < MassLimit):
+#
+#     y5,hnew = tools.RKF45Method_adaptive(tools.dydr,r,y,h)
+#
+#     r_values.append(r + h)
+#     y_values.append(y5)
+#
+#     # Channging variales around for next iteration of the 'while' loop
+#     # I.e., hnew becomes h for the next iteration and y5 becomes y for the next iteration
+#     h = hnew
+#     y = y5
+#     r += h
+#
+#     rho = y[0]
+#     T = y[1]
+#     M = y[2]
+#     L = y[3]
+#     tau = y[4]
+#
+#     del_tau = tools.del_tau(rho,T, r, M, L )
