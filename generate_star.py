@@ -27,51 +27,6 @@ def solveODEs(r_init, r_fin, y0, steps):
 
     return (r,rho,T,M,L,tau)
 
-
-# Setting the Initial conditions
-r = 1 # starting radius for integration
-steps = h = 1000 # inital step size
-r_initial = 1
-r_final = 1e10
-
-rho_c = 77750 # (in kg/m^3) we will vary rho_c to satisfy the surface boundary condition on the luminosity and surface temperature
-Tc = 2e7 # (core temperature in K) we will choose Tc to be the MS paramter
-M = (4/3)*np.pi*(r**3)*rho_c # calculating the intial mass using the initial radius and densities specified
-L = (4/3)*np.pi*(r**3)*rho_c*tools.epsilon(rho_c, Tc) # calculating the intial luminosity using the initial radius and densities specified
-tau = tools.kappa(rho_c, Tc)*rho_c*r # calculating the intial tau using the initial radius and densities specified
-del_tau = tools.del_tau(rho_c,Tc,r,M,L) # intial value for the opacity proxy
-
-del_tau_threshold = 1e-5 # threshold value for the opacity proxy
-MassLimit = s.Msun*(1e3) # mass limit for integration
-
-y = np.zeros(5)
-y = rho_c, Tc, M, L, tau
-
-r_values = [r] # will store all radius values
-y_values = [y] # will store values for rho, T, M, l and tau respectively
-
-solutions = solveODEs(r_initial, r_final, y, steps)
-
-r_values = solutions[0]
-rho_values = solutions[1]
-T_values = solutions[2]
-M_values = solutions[3]
-L_values = solutions[4]
-tau_values = solutions[5]
-tau_infinity = tau_values[len(tau_values)-1]
-difference = []
-
-for n in range(0,len(tau_values)-2):
-    difference.append(tau_infinity - tau_values[n] - (2/3) )
-
-index_at_surface = np.argmin(difference)
-
-R_Star = r_values[index_at_surface]
-Rho_Star = rho_values[index_at_surface]
-T_Star = T_values[index_at_surface]
-M_Star = M_values[index_at_surface]
-L_Star = L_values[index_at_surface]
-
 def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
     '''This will use the bisection method to vary and determine the value for
     for rho_c such that the lumnosity boundary condition is  met
@@ -206,6 +161,55 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
             diff = current - previous
     return (rhoc_mid)
 
+###############################################################################
+######################### Setting the Initial conditions ######################
+###############################################################################
+r_initial = 1
+r_final = 1000000000
+steps = 1000 # step size
+
+rho_c = 77750 # (in kg/m^3) we will vary rho_c to satisfy the surface boundary condition on the luminosity and surface temperature
+Tc = 2e7 # (core temperature in K) we will choose Tc to be the MS paramter
+M = (4/3)*np.pi*(r_initial**3)*rho_c # calculating the intial mass using the initial radius and densities specified
+L = (4/3)*np.pi*(r_initial**3)*rho_c*tools.epsilon(rho_c, Tc) # calculating the intial luminosity using the initial radius and densities specified
+tau = tools.kappa(rho_c, Tc)*rho_c*r_initial # calculating the intial tau using the initial radius and densities specified
+# del_tau = tools.del_tau(rho_c,Tc,r,M,L) # intial value for the opacity proxy
+# del_tau_threshold = 1e-5 # threshold value for the opacity proxy
+# MassLimit = s.Msun*(1e3) # mass limit for integration
+
+y = np.zeros(5)
+y = rho_c, Tc, M, L, tau
+
+rhoc_min = 1e3
+rhoc_max = 1e6
+
+rho_c =  bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps) # new rho_c that satisfies the boundary consitions for luminosity
+
+y_new = np.array(y)
+y_new[0] = rho_c
+
+solutions_final = solveODEs(r_initial, r_final, y_new, steps)
+
+r_values = solutions_final[0]
+rho_values = solutions_final[1]
+T_values = solutions_final[2]
+M_values = solutions_final[3]
+L_values = solutions_final[4]
+tau_values = solutions_final[5]
+tau_infinity = tau_values[len(tau_values)-1]
+difference = []
+
+for n in range(0,len(tau_values)-2):
+    difference.append(tau_infinity - tau_values[n] - (2/3) )
+
+index_at_surface = np.argmin(difference)
+
+R_Star = r_values[index_at_surface]
+Rho_Star = rho_values[index_at_surface]
+T_Star = T_values[index_at_surface]
+M_Star = M_values[index_at_surface]
+L_Star = L_values[index_at_surface]
+
 
 # Saving all values related to pressure
 P_values = tools.pressure(rho_values, T_values)
@@ -220,31 +224,23 @@ print('T_star is', T_Star)
 print('M_star/M_sun is', M_Star/s.Msun)
 print('L_star/L_sun is', L_Star/s.Lsun)
 print('L_star is', L_Star)
-print('theoretical luminosity', 4*np.pi*s.sb*R_Star**2*T_Star**4)
-
-print("  ")
-f = tools.luminosity_check(R_Star, L_Star, T_Star)
-print(f)
 
 
-rhoc = bisection(1e3, 1e6, 1, 100000000, y, 10000)
-print(rhoc)
+plt.plot(r_values/R_Star, rho_values/rho_c, 'k' ,label='rho')
+plt.plot(r_values/R_Star, L_values/L_Star, '-.b',label='L')
+plt.plot(r_values/R_Star, M_values/M_Star, '-g',label='M')
+plt.plot(r_values/R_Star, T_values/Tc, ':r', label='T')
+plt.xlim(0,1)
+plt.legend(loc='best')
+plt.show()
 
-# plt.plot(r_values/R_Star, rho_values/rho_c, 'k' ,label='rho')
-# plt.plot(r_values/R_Star, L_values/L_Star, '-.b',label='L')
-# plt.plot(r_values/R_Star, M_values/M_Star, '-g',label='M')
-# plt.plot(r_values/R_Star, T_values/Tc, ':r', label='T')
-# plt.xlim(0,1)
-# plt.legend(loc='best')
-# plt.show()
-#
-# plt.plot(r_values/R_Star, P_values/P_c, 'k' ,label='P')
-# plt.plot(r_values/R_Star, P_degen_values/P_c, '--r' ,label='P_degen')
-# plt.plot(r_values/R_Star, P_ideal_values/P_c, '-.b' ,label='P_ideal')
-# plt.plot(r_values/R_Star, P_photongas_values/P_c, ':g' ,label='P_photongas')
-# plt.xlim(0,1)
-# plt.legend(loc='best')
-# plt.show()
+plt.plot(r_values/R_Star, P_values/P_c, 'k' ,label='P')
+plt.plot(r_values/R_Star, P_degen_values/P_c, '--r' ,label='P_degen')
+plt.plot(r_values/R_Star, P_ideal_values/P_c, '-.b' ,label='P_ideal')
+plt.plot(r_values/R_Star, P_photongas_values/P_c, ':g' ,label='P_photongas')
+plt.xlim(0,1)
+plt.legend(loc='best')
+plt.show()
 
 ################################################################################
 ############################     DEPREACATED CODE    ###########################
