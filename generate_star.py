@@ -219,10 +219,11 @@ P_photongas_values = tools.P_photongas(T_values)
 P_c = tools.pressure(rho_c, Tc) # calcualting the central pressure
 
 # Saving all values related to kappa
-# Note all of these kappa values are in units of m**2/kg, will need to change to cm**2/g when plotting
+# Note all of these kappa values are in units of cm**2/g
+# Can convert from m**2/kg to cm**2/g by multiplying by 10
 kappa_values = []
 for i in range(0, len(rho_values)):
-    kappa_values.append( tools.kappa(rho_values[i], T_values[i]) )
+    kappa_values.append( tools.kappa(rho_values[i], T_values[i]) * 10)
 
 kappa_ff_values = tools.kappa_ff(rho_values, T_values) * 10
 kappa_es_values = np.full(len(kappa_ff_values),tools.kappa_es() * 10)
@@ -255,7 +256,7 @@ plt.legend(loc='best')
 plt.show()
 
 # Plotting kappa results
-# In cm**2/g ##To convert from m**2/kg to cm**2/g we multiply by 10
+# In cm**2/g
 plt.plot(r_values/R_Star, np.log10( kappa_values), 'k' ,label='kappa')
 plt.plot(r_values/R_Star, np.log10( kappa_es_values), '--b' ,label='kappa_es')
 plt.plot(r_values/R_Star, np.log10( kappa_ff_values), ':g' ,label='kappa_ff')
