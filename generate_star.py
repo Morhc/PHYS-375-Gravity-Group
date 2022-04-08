@@ -72,6 +72,74 @@ T_Star = T_values[index_at_surface]
 M_Star = M_values[index_at_surface]
 L_Star = L_values[index_at_surface]
 
+def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
+    '''This will use the bisection method to vary and determine the value for
+    for rho_c such that the lumnosity boundary condition is  met
+    '''
+
+    rhoc_mid = (rhoc_min + rhoc_max)/2 # determine mid point for rhoc given the min and max inputs
+
+    y_min = y # new intial value array for rhoc_min
+    y_min[0] = rhoc_min
+
+    y_mid = y # new intial value array for rhoc_mid
+    y_mid[0] = rhoc_mid
+
+    y_max = y # new intial value array for rhoc_max
+    y_max[0] = rhoc_max
+
+    # Now we want to use rhoc min,mid, and max to solve the ODEs individually
+    solutions_min = solveODEs(r_initial, r_final, y_min, steps)
+    solutions_mid = solveODEs(r_initial, r_final, y_mid, steps)
+    solutions_max = solveODEs(r_initial, r_final, y_max, steps)
+
+    # Need to find R_star, L_star, and T_star for the three solutions
+    tau_values_min = solutions_min[5]
+    tau_values_mid = solutions_mid[5]
+    tau_values_max = solutions_max[5]
+
+    tau_infinity_min = tau_values_min[len(tau_values_min)-1]
+    tau_infinity_mid = tau_values_mid[len(tau_values_mid)-1]
+    tau_infinity_max = tau_values_max[len(tau_values_max)-1]
+
+
+    difference_min = []
+    difference_mid = []
+    difference_max = []
+
+    for n in range(0,len(tau_values_min)-2):
+        difference_min.append(tau_infinity_min - tau_values_min[n] - (2/3) )
+
+    for n in range(0,len(tau_values_mid)-2):
+        difference_mid.append(tau_infinity_mid - tau_values_mid[n] - (2/3) )
+
+    for n in range(0,len(tau_values_max)-2):
+        difference_max.append(tau_infinity_max - tau_values_max[n] - (2/3) )
+
+    index_at_surface_min = np.argmin(difference_min)
+    index_at_surface_mid = np.argmin(difference_mid)
+    index_at_surface_max = np.argmin(difference_max)
+
+    R_Star_min = solutions_min[0][index_at_surface_min]
+    R_Star_mid = solutions_mid[0][index_at_surface_mid]
+    R_Star_max = solutions_max[0][index_at_surface_max]
+
+    L_Star_min = solutions_min[4][index_at_surface_min]
+    L_Star_mid = solutions_mid[4][index_at_surface_mid]
+    L_Star_max = solutions_max[4][index_at_surface_max]
+
+    T_Star_min = solutions_min[2][index_at_surface_min]
+    T_Star_mid = solutions_mid[2][index_at_surface_mid]
+    T_Star_max = solutions_max[2][index_at_surface_max]
+
+    # Using the luminosity_check (equation 17) for the valoues found using rhoc min,max, mid
+    fmin = tools.luminosity_check(R_Star_min, L_Star_min, T_Star_min)
+    fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
+    fmax = tools.luminosity_check(R_Star_max, L_Star_max, T_Star_max)
+
+
+
+
 # Saving all values related to pressure
 P_values = tools.pressure(rho_values, T_values)
 P_degen_values = tools.P_degen(rho_values)
@@ -87,6 +155,9 @@ print('L_star/L_sun is', L_Star/s.Lsun)
 print('L_star is', L_Star)
 print('theoretical luminosity', 4*np.pi*s.sb*R_Star**2*T_Star**4)
 
+print("  ")
+f = tools.luminosity_check(R_Star, L_Star, T_Star)
+print(f)
 # plt.plot(r_values/R_Star, rho_values/rho_c, 'k' ,label='rho')
 # plt.plot(r_values/R_Star, L_values/L_Star, '-.b',label='L')
 # plt.plot(r_values/R_Star, M_values/M_Star, '-g',label='M')
