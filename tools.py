@@ -24,7 +24,7 @@ def load_data():
 
 def dydr(r,y) :
     """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
-       matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
+       matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth, lambda]
     """
     rho = y[0]
     T = y[1]
@@ -314,6 +314,8 @@ def drho_dr_scaled(rho, T, r, M,L, lam):
 
     return ( (-(A+B))/C )
 
+lam_vals = 10
+
 # Edit dydr to account for gravitational scaling
 def dydr_gscaled(r,y) :
     """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
@@ -326,7 +328,6 @@ def dydr_gscaled(r,y) :
     M = y[2]
     L = y[3]
     tau = y[4]
-    lam_vals = 1000
 
     # The five ODEs we are trying to solve (equation 2)
     dydr = np.zeros(5)

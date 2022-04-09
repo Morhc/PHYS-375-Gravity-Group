@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from standards import Standards as s
 import tools as tools
+import FofLambda as gravmod
 import scipy.integrate as int
 import matplotlib.pyplot as plt
 #import star_info as star_info
@@ -18,7 +19,7 @@ def solveODEs(r_init, r_fin, y0, steps):
     r_values = np.linspace(r_init, r_fin, steps)
     t_span = (r_init, r_fin)
 
-    solutions = int.solve_ivp(tools.dydr_gscaled,t_span,y0,'RK45', t_eval=r_values) # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
+    solutions = int.solve_ivp(gravmod.dydr_gscaled,t_span,y0,'RK45', t_eval=r_values) # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
 
     rho = solutions.y[0]
     T = solutions.y[1]
