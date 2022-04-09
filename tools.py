@@ -292,63 +292,24 @@ def luminosity_check(r, L, T):
 # Modification of Gravity Section:
 # ---------------------------------
 
-# Lambda Guess': global variables
-lam_guess = 1000 # Guess for constraints of lambda, from negative int to positive int
-lam_lim_guess = 2 # Guess for scaling factor, limit is the length of lambda_values / lambda_limit_guess
-
-# Function to scale g
-def g_scaled(r,y,lam_guess,lam_lim_guess): # Based on equation 19
-    '''
-        Inputs (given as a function call of RK4):
-            r - Array (Radius),
-            y - Array (for y[2]: Mass)
-            lam_guess - Int (Global Variable)
-            lam_lim_guess - Int (Global Variable)
-
-        Returns:
-            g scaling as r^-3 below limit
-            g non-scaled above chosen limit
-    '''
-
-    # Lambda constraints
-    lambda_vals = np.linspace(-lam_guess, lam_guess, (len(r))) # values of lambda ranging from guesses
-    limit = (len(lambda_vals)) / lam_lim_guess # limit arbitrarily chosen, can change according to limit consideration...?
-
-    # Container for final values of g (scaled or unscaled)
-    final_g = []
-    n = 0 # Counter for iteration loop
-
-    # Logic for lambda limit:
-    while n <= (len(r) - 1):
-        for i in (lambda_vals[0:limit]):
-            final_g.append( ((s.G * y[2][i]) / (r[i] ** 2)) + ((s.G * y[2][i]) * lambda_vals[i] / (r[i] ** 3)) )
-        for j in (lambda_vals[limit:]):
-            final_g.append(((s.G * y[2][j]) / (r[j] ** 2)))
-
-        n += 1
-
-    return final_g
-
-# Edit drho_dr and dTdr from above to account for gravity scaling
-
-def dT_dr_scaled(rho, T, r, L, M): # Built upon dT_dr function
+def dT_dr_scaled(rho, T, r, L, M, lam): # Built upon dT_dr function
     '''This function will calculate the termperature DE with scaled lambda factor for gravity
         Extrapolation of dT_dr function
     '''
 
     A = 3*kappa(rho, T)*rho*L/(16*np.pi*(s.sb*4)*(T**3)*(r**2))
-    B = (1-1/s.gamma)*(T/pressure(rho,T))*((g_scaled(r,M,lam_guess,lam_lim_guess)*rho)) # y is replaced with Mass
+    B = (1-1/s.gamma)*(T/pressure(rho,T))*(( ((s.G * M) / (r ** 2)) + ( (s.G * M * lam) / (r ** 3) ) )*rho) # y is replaced with Mass
     min_value = -np.minimum(A,B)
 
     return (min_value)
 
-def drho_dr_scaled(rho, T, r, M,L):
+def drho_dr_scaled(rho, T, r, M,L, lam):
     '''This fucntion will calculate the density DE with scaled lambda factor for gravity
         Extrapolation of drho_dr function
     '''
 
-    A = ((g_scaled(r,M,lam_guess,lam_lim_guess)*rho))
-    B = (dP_dT(rho, T) )*(dT_dr_scaled(rho, T, r, L, M))
+    A = (( ((s.G * M) / (r ** 2)) + ( (s.G * M * lam) / (r ** 3) ) )*rho)
+    B = (dP_dT(rho, T) )*(dT_dr_scaled(rho, T, r, L, M, lam))
     C = dP_drho(rho, T)
 
     return ( (-(A+B))/C )
@@ -359,21 +320,20 @@ def dydr_gscaled(r,y) :
        matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
 
        Edited to account for gravitational scaling based on lambda
-    """
+    """   
     rho = y[0]
     T = y[1]
     M = y[2]
     L = y[3]
     tau = y[4]
+    lam_vals = 1000
 
     # The five ODEs we are trying to solve (equation 2)
     dydr = np.zeros(5)
-    dydr[0] = drho_dr_scaled(rho, T, r, M,L)
-    dydr[1] = dT_dr_scaled(rho, T, r, L, M)
+    dydr[0] = drho_dr_scaled(rho, T, r, M,L, lam_vals)
+    dydr[1] = dT_dr_scaled(rho, T, r, L, M, lam_vals)
     dydr[2] = dM_dr(rho, r)
     dydr[3] = dL_dr(rho , T, r)
     dydr[4] = dtau_dr(rho, T)
 
     return dydr
-
-# Finally, run RK4 method for new scaled values
