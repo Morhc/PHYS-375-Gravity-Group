@@ -170,8 +170,8 @@ r_initial = 1
 r_final = 1000000000
 steps = 1000 # step size
 
-rho_c = 77750 # (in kg/m^3) a new value for rho_c will be found using the bisection method
-Tc = 1e7 # (core temperature in K) we will choose Tc to be the MS paramter
+rho_c = 77750# (in kg/m^3) a new value for rho_c will be found using the bisection method
+Tc = 8.23e6 # (core temperature in K) we will choose Tc to be the MS paramter
 M = (4/3)*np.pi*(r_initial**3)*rho_c # calculating the intial mass using the initial radius and densities specified
 L = (4/3)*np.pi*(r_initial**3)*rho_c*tools.epsilon(rho_c, Tc) # calculating the intial luminosity using the initial radius and densities specified
 tau = tools.kappa(rho_c, Tc)*rho_c*r_initial # calculating the intial tau using the initial radius and densities specified
@@ -254,10 +254,10 @@ print('L_star is', L_Star)
 print('rho_c is', rho_c)
 
 # Plotting normalized density, L,M, and T
-plt.plot(r_values/R_Star, rho_values/rho_c, 'k' ,label='rho')
-plt.plot(r_values/R_Star, L_values/L_Star, '-.b',label='L')
-plt.plot(r_values/R_Star, M_values/M_Star, '-g',label='M')
-plt.plot(r_values/R_Star, T_values/Tc, ':r', label='T')
+plt.plot(r_values/R_Star, rho_values/rho_c, 'k' ,label='rho/rho_c')
+plt.plot(r_values/R_Star, L_values/L_Star, '-.b',label='L/L_*')
+plt.plot(r_values/R_Star, M_values/M_Star, '-g',label='M/M_*')
+plt.plot(r_values/R_Star, T_values/Tc, ':r', label='T/Tc')
 plt.xlim(0,1)
 plt.legend(loc='best')
 plt.show()
