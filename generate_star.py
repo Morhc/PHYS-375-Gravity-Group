@@ -45,6 +45,7 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
     y_max = np.array(y) # new intial value array for rhoc_max
     y_max[0] = rhoc_max
 
+
     # Now we want to use rhoc min,mid, and max to solve the ODEs individually
     solutions_min = solveODEs(r_initial, r_final, y_min, steps)
     solutions_mid = solveODEs(r_initial, r_final, y_mid, steps)
@@ -106,8 +107,9 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
         current = rhoc_mid
         previous = 0
         diff = 2
+        counter = 1
 
-        while (abs(diff)>1):
+        while (abs(diff)>1) and (counter<100):
             if fmin*fmid<0: # Either fmin or fmid overshot while the other undershot
                 rhoc_max = rhoc_mid
                 rhoc_mid = (rhoc_min+rhoc_max)/2
@@ -120,6 +122,8 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
                 tau_values_mid = solutions_mid[5]
                 tau_infinity_mid = tau_values_mid[len(tau_values_mid)-1]
                 difference_mid = []
+
+                counter += 1
 
                 for n in range(0,len(tau_values_mid)-2):
                     difference_mid.append(tau_infinity_mid - tau_values_mid[n] - (2/3) )
@@ -157,6 +161,7 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
                 T_Star_mid = solutions_mid[2][index_at_surface_mid]
 
                 fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
+                counter += 1
 
             previous = current
             current = rhoc_mid
@@ -170,11 +175,12 @@ r_initial = 1
 r_final = 1000000000
 steps = 1000 # step size
 
-rho_c = 77750# (in kg/m^3) a new value for rho_c will be found using the bisection method
-Tc = 8.23e6 # (core temperature in K) we will choose Tc to be the MS paramter
+rho_c = 89203# (in kg/m^3) a new value for rho_c will be found using the bisection method
+Tc = 9.8e6 # (core temperature in K) we will choose Tc to be the MS paramter
 M = (4/3)*np.pi*(r_initial**3)*rho_c # calculating the intial mass using the initial radius and densities specified
 L = (4/3)*np.pi*(r_initial**3)*rho_c*tools.epsilon(rho_c, Tc) # calculating the intial luminosity using the initial radius and densities specified
 tau = tools.kappa(rho_c, Tc)*rho_c*r_initial # calculating the intial tau using the initial radius and densities specified
+lam = 0 # This is the lambda for the gravity modification (=0 for not modification)
 # del_tau = tools.del_tau(rho_c,Tc,r,M,L) # intial value for the opacity proxy
 # del_tau_threshold = 1e-5 # threshold value for the opacity proxy
 # MassLimit = s.Msun*(1e3) # mass limit for integration
@@ -215,9 +221,9 @@ index_at_surface = np.argmin(difference)
 # Declaring R_Star, Rho_Star, T_Star, M_Star, and L_Star
 R_Star = r_values[index_at_surface]
 Rho_Star = rho_values[index_at_surface]
-T_Star = T_values[index_at_surface]
 M_Star = M_values[index_at_surface]
 L_Star = L_values[index_at_surface]
+T_Star = (L_Star/(4*np.pi*s.sb*(R_Star**2)))**(1/4) #T_values[index_at_surface]
 
 # Saving all values related to pressure
 P_values = tools.pressure(rho_values, T_values)

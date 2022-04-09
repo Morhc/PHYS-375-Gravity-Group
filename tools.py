@@ -328,6 +328,7 @@ def dydr_gscaled(r,y) :
     M = y[2]
     L = y[3]
     tau = y[4]
+    lamb = y[5]
 
     # The five ODEs we are trying to solve (equation 2)
     dydr = np.zeros(5)
