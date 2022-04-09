@@ -234,6 +234,9 @@ dL_dr_values = tools.dL_dr(rho_values , T_values, r_values)
 dL_dr_pp_values = tools.dL_dr_PP(rho_values , T_values, r_values)
 dL_dr_cno_values = tools.dL_dr_CNO(rho_values , T_values, r_values)
 
+# Saving all values for dln(P)/dln(T) partial derivative
+dlnP_dlnT_values = tools.dlnP_dlnT(rho_values , T_values)
+
 print('R_star is', R_Star/s.Rsun)
 print('Rho_star is', Rho_Star)
 print('T_star is', T_Star)
@@ -278,6 +281,16 @@ plt.xlim(0,1)
 plt.legend(loc='best')
 plt.show()
 
+# Plotting ln(dP/dT) # NOT SURE ABOUT THIS LAST ONE!
+plt.plot(r_values/R_Star, dlnP_dlnT_values, 'k' ,label='dln(P)/dln(T)')
+plt.xlim(0,1)
+plt.legend(loc='best')
+plt.show()
+
+# # Saving results into a TXT file
+# file_name = 'test_results5.txt'
+# with open(file_name, 'w') as f:
+#     np.savetxt(file_name,np.array([r_values, r_values/R_Star, rho_values, T_values,M_values,L_values,tau_values]), delimiter='\t', fmt="%s")
 
 
 ################################################################################
