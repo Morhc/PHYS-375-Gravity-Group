@@ -212,6 +212,15 @@ def dP_drho(rho, T):
 
     return ( (A*B) + C )
 
+def dlnP_dlnT(rho, T):
+    '''This function will calculat the partial derivative of d(ln(P))/d(ln(T))'''
+    C1 = rho*s.k / (s.mu*s.mp)
+    C2 = (1/3)*s.a*T
+
+    numerator = C1*T + 4*C2*T**4
+    denominator = pressure(rho, T)
+    return ( numerator/denominator )
+
 def dtau_dr(rho, T):
     '''This function will calculate the optical depth DE'''
     '''Calls the kappa function for the opacity'''
@@ -277,6 +286,7 @@ def luminosity_check(r, L, T):
     f = (L-theoretical) / np.sqrt(L*theoretical)
 
     return(f)
+
 
 # ---------------------------------
 # Modification of Gravity Section:
