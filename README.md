@@ -9,3 +9,10 @@ This project will require the user to install the following Python libraries:
 - numpy: https://pypi.org/project/numpy/
 - pandas: https://pypi.org/project/pandas/
 - matplotlib: https://pypi.org/project/matplotlib/
+
+**You may run into some issues with LaTeX.**
+
+## How to Run
+1. Set the lambda value you want in FofLambda
+2. Set the Tc you want in create_sequences.py
+3. Run create_sequences.py
