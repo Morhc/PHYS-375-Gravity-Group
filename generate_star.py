@@ -208,7 +208,8 @@ print('Saving the data')
 summary_file = os.path.join(s.data_folder, 'generated_stars.csv')
 
 with open(summary_file, 'a+') as f:
-    f.write(f'{rho_c},{Tc},{R_Star},{M_Star},{L_Star},{T_Star}\n')
+    #converting to cgms units
+    f.write(f'{rho_c/1000},{Tc},{R_Star*100},{M_Star*1000},{L_Star/1e-7},{T_Star}\n')
 
 df = pd.DataFrame(data=zip(r_values/R_Star, rho_values, L_values, M_values, T_values, P_ideal_values,
                            P_degen_values, P_photongas_values, P_values, dlnP_dlnT_values,
@@ -216,6 +217,30 @@ df = pd.DataFrame(data=zip(r_values/R_Star, rho_values, L_values, M_values, T_va
                            dL_dr_values, dL_dr_pp_values, dL_dr_cno_values),
                   columns=['r/R', 'rho(r)', 'L(r)', 'M(r)', 'T(r)', 'Pgas', 'Pdeg', 'Ppho', 'P', 'dlogP/dlogT',
                            'kappa', 'kappaff', 'kappaHm', 'kappaes', 'dL/dr', 'dLpp/dr', 'dLcno/dr'])
+
+#to g/cm^3
+df['rho(r)'] = df['rho(r)']/1000
+#to g
+df['M(r)'] = df['M(r)']*1000
+#to erg/s
+df['L(r)'] = df['L(r)'] / 1e-7
+
+#to erg/cm^3
+df['P'] = df['P'] * 0.1
+df['Pdeg'] = df['Pdeg'] * 0.1
+df['Pgas'] = df['Pgas'] * 0.1
+df['Ppho'] = df['Ppho'] * 0.1
+
+#to erg/s/cm
+df['dL/dr'] = df['dL/dr'] / 1e-7 / 100
+df['dLpp/dr'] = df['dLpp/dr'] / 1e-7 / 100
+df['dLcno/dr'] = df['dLcno/dr'] / 1e-7 / 100
+
+#to cm^2/g
+df['kappa'] = df['kappa'] * 10
+df['kappaff'] = df['kappaff'] * 10
+df['kappaes'] = df['kappaes'] * 10
+df['kappaHm'] = df['kappaHm'] * 10
 
 df.to_csv(rf"{os.path.join(s.data_folder, 'star_1.csv')}", index=False)
 

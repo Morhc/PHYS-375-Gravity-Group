@@ -1,4 +1,4 @@
-#script: tools.py
+ #script: tools.py
 #purpose: To have a hub for all useful functions.
 
 import os
@@ -102,7 +102,7 @@ def dP_dT(rho, T):
     A = rho*s.k / (s.mu*s.mp)
     B = (4/3)*s.a*T**3
 
-    return ( A+B )
+    return A + B
 
 def dP_drho(rho, T):
     '''This function will calcualte the partial derivate of pressure with respect to density (see equation 5)'''
@@ -116,12 +116,15 @@ def dP_drho(rho, T):
 def dlnP_dlnT(rho, T):
     '''This function will calculate the partial derivative of d(ln(P))/d(ln(T))'''
     C1 = rho*s.k / (s.mu*s.mp)
-    C2 = (1/3)*s.a*T
+    C2 = (1/3)*s.a
 
     numerator = C1*T + 4*C2*T**4
     denominator = pressure(rho, T)
-    #return numerator/denominator
-    return np.log(dP_dT(rho, T))
+    return numerator/denominator
+    #return np.log(dP_dT(rho, T))
+
+    #A = np.log(rho*s.k / (s.mu*s.mp))
+    #B = np.log
 
 def dtau_dr(rho, T):
     '''This function will calculate the optical depth DE'''
