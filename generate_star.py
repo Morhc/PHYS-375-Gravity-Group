@@ -1,4 +1,5 @@
 # Main code for generating the main sequence stars
+# NO GRAVITY MODIFICATION! Let's copy this working code into a new file solely for the gravity modification
 
 import os
 import numpy as np
@@ -7,6 +8,7 @@ from standards import Standards as s
 import tools as tools
 import scipy.integrate as int
 import matplotlib.pyplot as plt
+import star_info as star_info
 
 np.seterr(all='ignore')
 
@@ -168,8 +170,8 @@ r_initial = 1
 r_final = 1000000000
 steps = 1000 # step size
 
-rho_c = 77750 # (in kg/m^3) we will vary rho_c to satisfy the surface boundary condition on the luminosity and surface temperature
-Tc = 2e6 # (core temperature in K) we will choose Tc to be the MS paramter
+rho_c = 77750 # (in kg/m^3) a new value for rho_c will be found using the bisection method
+Tc = 1e7 # (core temperature in K) we will choose Tc to be the MS paramter
 M = (4/3)*np.pi*(r_initial**3)*rho_c # calculating the intial mass using the initial radius and densities specified
 L = (4/3)*np.pi*(r_initial**3)*rho_c*tools.epsilon(rho_c, Tc) # calculating the intial luminosity using the initial radius and densities specified
 tau = tools.kappa(rho_c, Tc)*rho_c*r_initial # calculating the intial tau using the initial radius and densities specified
@@ -181,8 +183,8 @@ tau = tools.kappa(rho_c, Tc)*rho_c*r_initial # calculating the intial tau using 
 y = np.zeros(5)
 y = rho_c, Tc, M, L, tau
 
-rhoc_min = 1e3 # min value for rho_c
-rhoc_max = 1e6 # max value for rho_c
+rhoc_min = 300 # min value for rho_c in kg/m**3
+rhoc_max = 500000 # max value for rho_c in kg/m**3
 rho_c =  bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps) # new rho_c that satisfies the boundary consitions for luminosity
 
 # re-defining the previos 'y' array to now contain the newly determine rho_c value
@@ -294,6 +296,9 @@ plt.legend(loc='best')
 plt.show()
 
 # # Saving results into a TXT file
+data = pd.DataFrame(data=zip(M_Star, r_values, rho_values, T_values, M_values, L_values, dL_dr_values, dL_dr_pp_values, dL_dr_cno_values, dlnP_dlnT_values, r_values/R_Star, rho_values/rho_c), columns=['M (kg)', 'r (m)', 'rho(r) (kg/cm^3)', 'T(r) (K)', 'M(r) (kg)', 'L(r) (J/s)', 'dL/dr (J/s/m)', 'dLpp/dr (J/s/m)', 'dLcno/dr (J/s/m)', 'dlogP/dlogT (J/s/m)', 'r/R', 'rho(r)/rhoc'])
+star_info.plot_star(data, info = None, savepath="")
+
 # file_name = 'test_results5.txt'
 # with open(file_name, 'w') as f:
 #     np.savetxt(file_name,np.array([r_values, r_values/R_Star, rho_values, T_values,M_values,L_values,tau_values]), delimiter='\t', fmt="%s")
