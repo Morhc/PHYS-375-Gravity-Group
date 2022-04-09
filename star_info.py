@@ -25,6 +25,7 @@ def plot_star(data, info = None, savepath=""):
             x - the number to make into scientific notation
             ndp - the number of decimal points
         """
+
         s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
         m, e = s.split('e')
         return r'{m:s}\times 10^{{{e:d}}}'.format(m=m, e=int(e))
@@ -74,7 +75,8 @@ def plot_star(data, info = None, savepath=""):
     axes[1,0].plot(r_R, data['P']/Pc, color = s.colours[0])
     axes[1,0].text(r_R[max(data['P'][data['P']/Pc>0.1].index.values)], 0.12, r'$P_{tot}$', color = s.colours[0], fontsize=14)
     axes[1,0].plot(r_R, data['Pgas']/Pc, color = s.colours[1], ls='dashed')
-    axes[1,0].text(1.1*r_R[max(data['Pgas'][data['Pgas']/Pc>0.45].index.values)], 0.5, r'$P_{gas}$', color = s.colours[1], fontsize=14)
+    #axes[1,0].text(1.1*r_R[max(data['Pgas'][data['Pgas']/Pc>0.45].index.values)], 0.5, r'$P_{gas}$', color = s.colours[1], fontsize=14)
+    axes[1,0].text(0.2, 0.5, r'$P_{gas}$', color = s.colours[1], fontsize=14)
     axes[1,0].plot(r_R, data['Pdeg']/Pc, color = s.colours[2], ls=(0, (5, 10)))
     axes[1,0].text(0.05, 1.3*data['Pdeg'][max(r_R[r_R < 0.05].index.values)]/Pc, r'$P_{deg}$', color = s.colours[2], fontsize=14)
     axes[1,0].plot(r_R, data['Ppho']/Pc, color = s.colours[3], ls='dotted')
@@ -122,24 +124,27 @@ def plot_star(data, info = None, savepath=""):
 
     #the convective region is where dlogP/dlogT = 1 - 1/gamma = 2.5
     convective = data[data['dlogP/dlogT'] == 2.5].index.values
-    vals = [[convective[0]]]
-    c = 0
-    for i in range(1, len(convective)):
-        #find all discontinuities
-        if convective[i] - convective[i-1] != 1:
-            vals[c].append(convective[i-1])
-            vals.append([convective[i]])
-            c+=1
-    vals[c].append(convective[-1])
+    if len(convective) > 0:
+        vals = [[convective[0]]]
+        c = 0
+        for i in range(1, len(convective)):
+            #find all discontinuities
+            if convective[i] - convective[i-1] != 1:
+                vals[c].append(convective[i-1])
+                vals.append([convective[i]])
+                c+=1
+        vals[c].append(convective[-1])
 
     #settings aesthetics for all plots
     for i, ax in enumerate(fig.axes):
-        for region in vals:
-            ax.axvspan(r_R[region[0]], r_R[region[1]],color='lightgrey',alpha=0.5,lw=0)
+        if len(convective) > 0:
+            for region in vals:
+                ax.axvspan(r_R[region[0]], r_R[region[1]],color='lightgrey',alpha=0.5,lw=0)
 
         ax.tick_params(direction='in', which='both', right=True, top=True)
 
         ax.set_xlim(0,1)
+        """
         ax.xaxis.set_major_locator(tk.MultipleLocator(0.2))
         ax.xaxis.set_minor_locator(tk.MultipleLocator(0.05))
 
@@ -154,7 +159,7 @@ def plot_star(data, info = None, savepath=""):
             ax.tick_params(labelbottom = False)
 
         ax.yaxis.set_minor_locator(tk.AutoMinorLocator())
-
+        """
 
     if savepath != "":
         plt.savefig(savepath)
@@ -166,9 +171,20 @@ def plot_star(data, info = None, savepath=""):
 
 if __name__ == '__main__':
 
+    """
     highmass, lowmass, summary = load_data()
     for i, data in enumerate([highmass, lowmass]):
         info = summary.iloc[i,:]
         one = 'high' if i == 0 else 'low'
         savepath = os.path.join(s.plots_folder, f'Broderick_{one}mass.png')
         plot_star(data, info = info, savepath = savepath)
+    """
+
+    summary = os.path.join(s.data_folder, 'generated_stars.csv')
+    info = pd.read_csv(summary, header=0).iloc[0, :]
+
+    star = os.path.join(s.data_folder, 'star_1.csv')
+    data = pd.read_csv(star, header=0)
+
+    savepath = os.path.join(s.plots_folder, 'star_1.png')
+    plot_star(data, info=info, savepath=savepath)

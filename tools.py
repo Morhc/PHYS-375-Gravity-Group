@@ -322,7 +322,7 @@ def dydr_gscaled(r,y) :
        matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
 
        Edited to account for gravitational scaling based on lambda
-    """   
+    """
     rho = y[0]
     T = y[1]
     M = y[2]

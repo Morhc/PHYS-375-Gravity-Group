@@ -167,6 +167,8 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
 ###############################################################################
 ######################### Setting the Initial conditions ######################
 ###############################################################################
+
+print('Beginning')
 r_initial = 1
 r_final = 1000000000
 steps = 1000 # step size
@@ -184,16 +186,20 @@ tau = tools.kappa(rho_c, Tc)*rho_c*r_initial # calculating the intial tau using 
 y = np.zeros(5)
 y = rho_c, Tc, M, L, tau
 
+print('Starting bisection')
 rhoc_min = 300 # min value for rho_c in kg/m**3
 rhoc_max = 500000 # max value for rho_c in kg/m**3
-rho_c =  bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps) # new rho_c that satisfies the boundary consitions for luminosity
+rho_c = bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps) # new rho_c that satisfies the boundary consitions for luminosity
+print('Bisection ended')
 
 # re-defining the previos 'y' array to now contain the newly determine rho_c value
 y_new = np.array(y)
 y_new[0] = rho_c
 
 # Solving the ODEs
+print('Solving ODEs')
 solutions_final = solveODEs(r_initial, r_final, y_new, steps)
+print('ODEs are solved')
 
 # Storing the solutions to the ODEs appropriately
 r_values = solutions_final[0]
@@ -205,10 +211,12 @@ tau_values = solutions_final[5]
 tau_infinity = tau_values[len(tau_values)-1] # tau_infinity set to be the last value in tau_values
 difference = []
 
+print('Solving tau')
 # Looping over all tau_values and subtraction 2/3 and tau_value out of tau_infinity.
 # This expression as defined by section 2.2.1 should be 0 at R_Star
 for n in range(0,len(tau_values)-2):
     difference.append(tau_infinity - tau_values[n] - (2/3) )
+print('Tau solved')
 
 # Obtaining the array index for the lowest value in the difference
 index_at_surface = np.argmin(difference)
@@ -220,6 +228,7 @@ T_Star = T_values[index_at_surface]
 M_Star = M_values[index_at_surface]
 L_Star = L_values[index_at_surface]
 
+print('Solving pressures')
 # Saving all values related to pressure
 P_values = tools.pressure(rho_values, T_values)
 P_degen_values = tools.P_degen(rho_values)
@@ -230,6 +239,7 @@ P_c = tools.pressure(rho_c, Tc) # calcualting the central pressure
 # Saving all values related to kappa
 # Note all of these kappa values are in units of cm**2/g
 # Can convert from m**2/kg to cm**2/g by multiplying by 10
+print('Solving kappa')
 kappa_values = []
 for i in range(0, len(rho_values)):
     kappa_values.append( tools.kappa(rho_values[i], T_values[i]) * 10)
@@ -238,6 +248,7 @@ kappa_ff_values = tools.kappa_ff(rho_values, T_values) * 10
 kappa_es_values = np.full(len(kappa_ff_values),tools.kappa_es() * 10)
 kappa_Hminus_values = tools.kappa_Hminus(rho_values, T_values) * 10
 
+print('Solving dL/dr')
 # Saving all values related to dL/dr
 dL_dr_values = tools.dL_dr(rho_values , T_values, r_values)
 dL_dr_pp_values = tools.dL_dr_PP(rho_values , T_values, r_values)
@@ -245,6 +256,24 @@ dL_dr_cno_values = tools.dL_dr_CNO(rho_values , T_values, r_values)
 
 # Saving all values for dln(P)/dln(T) partial derivative
 dlnP_dlnT_values = tools.dlnP_dlnT(rho_values , T_values)
+
+print('Saving the data')
+### SAVING OUT THE DATA ###
+summary_file = os.path.join(s.data_folder, 'generated_stars.csv')
+
+with open(summary_file, 'a+') as f:
+    f.write(f'{rho_c},{Tc},{R_Star},{M_Star},{L_Star},{T_Star}\n')
+
+df = pd.DataFrame(data=zip(r_values/R_Star, rho_values, L_values, M_values, T_values, P_ideal_values,
+                           P_degen_values, P_photongas_values, P_values, dlnP_dlnT_values,
+                           kappa_values, kappa_ff_values, kappa_Hminus_values, kappa_es_values,
+                           dL_dr_values, dL_dr_pp_values, dL_dr_cno_values),
+                  columns=['r/R', 'rho(r)', 'L(r)', 'M(r)', 'T(r)', 'Pgas', 'Pdeg', 'Ppho', 'P', 'dlogP/dlogT',
+                           'kappa', 'kappaff', 'kappaHm', 'kappaes', 'dL/dr', 'dLpp/dr', 'dLcno/dr'])
+
+df.to_csv(os.path.join(s.data_folder, 'star_1.csv'), index=False)
+
+quit()
 
 print('R_star is', R_Star/s.Rsun)
 print('Rho_star is', Rho_Star)

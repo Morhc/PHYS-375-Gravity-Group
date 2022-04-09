@@ -12,7 +12,7 @@ def dydr_gscaled(r,y) :
        matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
 
        Edited to account for gravitational scaling based on lambda
-    """   
+    """
     rho = y[0]
     T = y[1]
     M = y[2]
@@ -30,5 +30,5 @@ def dydr_gscaled(r,y) :
     return dydr
 
 while lam_vals >= 3:
-    exec(open("generate_Star_gravmod.py").read())
+    exec(open("generate_star_gravmod.py").read())
     lam_vals -= 1
