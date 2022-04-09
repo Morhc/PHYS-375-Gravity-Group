@@ -21,7 +21,6 @@ def load_data():
 
     return highmass, lowmass, summary
 
-
 def dydr(r,y) :
     """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
        matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth, lambda]
@@ -113,15 +112,9 @@ def dP_drho(rho, T):
 
     return ( (A*B) + C )
 
-def dlnP_dlnT(rho, T):
+def dlnP_dlnT(P, T):
     '''This function will calculate the partial derivative of d(ln(P))/d(ln(T))'''
-    A = ( ((3*np.pi**2)**(2/3)/5)*(s.hbar**2/s.me)*(rho/s.mp)**(5/3) )
-    B = rho*s.k/(s.mu*s.mp)
-    C = s.a/3
-
-    d = B*T + 4*C*np.power(T, 4)
-    n = A + B*T + C*np.power(T, 4)
-    return d/n
+    return np.log(P)/np.log(T)
 
 
 def dtau_dr(rho, T):
@@ -201,7 +194,7 @@ def dT_dr_scaled(rho, T, r, L, M, lam): # Built upon dT_dr function
 
     return (min_value)
 
-def drho_dr_scaled(rho, T, r, M,L, lam):
+def drho_dr_scaled(rho, T, r, L, M, lam):
     '''This fucntion will calculate the density DE with scaled lambda factor for gravity
         Extrapolation of drho_dr function
     '''
@@ -211,29 +204,3 @@ def drho_dr_scaled(rho, T, r, M,L, lam):
     C = dP_drho(rho, T)
 
     return ( (-(A+B))/C )
-
-lam_vals = 10
-
-# Edit dydr to account for gravitational scaling
-def dydr_gscaled(r,y) :
-    """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
-       matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
-
-       Edited to account for gravitational scaling based on lambda
-    """
-    rho = y[0]
-    T = y[1]
-    M = y[2]
-    L = y[3]
-    tau = y[4]
-    lamb = y[5]
-
-    # The five ODEs we are trying to solve (equation 2)
-    dydr = np.zeros(5)
-    dydr[0] = drho_dr_scaled(rho, T, r, M,L, lam_vals)
-    dydr[1] = dT_dr_scaled(rho, T, r, L, M, lam_vals)
-    dydr[2] = dM_dr(rho, r)
-    dydr[3] = dL_dr(rho , T, r)
-    dydr[4] = dtau_dr(rho, T)
-
-    return dydr
