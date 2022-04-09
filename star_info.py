@@ -147,7 +147,7 @@ def plot_star(data, info = None, savepath=""):
         ax.xaxis.set_major_locator(tk.MultipleLocator(0.2))
         ax.xaxis.set_minor_locator(tk.MultipleLocator(0.05))
 
-        """
+        
         if i in [0,1]:
             ax.yaxis.set_major_locator(tk.MultipleLocator(0.2))
         elif i in [2, 3]:
@@ -159,7 +159,7 @@ def plot_star(data, info = None, savepath=""):
             ax.tick_params(labelbottom = False)
 
         ax.yaxis.set_minor_locator(tk.AutoMinorLocator())
-        """
+
 
     if savepath != "":
         plt.savefig(savepath)
@@ -181,15 +181,39 @@ if __name__ == '__main__':
     """
 
     summary = os.path.join(s.data_folder, 'generated_stars.csv')
-    info = pd.read_csv(summary, header=0).iloc[0, :]
+    info = pd.read_csv(summary, header=0).iloc[-1, :]
 
-    #info['rhoc'] = info['rhoc']/1000
-    #info['R'] = info['R']*100
-    #info['M'] = info['M']*1000
-    #info['L'] = info['L'] / 1e-7
+    info['rhoc'] = info['rhoc']/1000
+    info['R'] = info['R']*100
+    info['M'] = info['M']*1000
+    info['L'] = info['L'] / 1e-7
 
     star = os.path.join(s.data_folder, 'star_1.csv')
     data = pd.read_csv(star, header=0)
+
+    #to g/cm^3
+    data['rho(r)'] = data['rho(r)']/1000
+    #to g
+    data['M(r)'] = data['M(r)']*1000
+    #to erg/s
+    data['L(r)'] = data['L(r)'] / 1e-7
+
+    #to erg/cm^3
+    data['P'] = data['P'] * 0.1
+    data['Pdeg'] = data['Pdeg'] * 0.1
+    data['Pgas'] = data['Pgas'] * 0.1
+    data['Ppho'] = data['Ppho'] * 0.1
+
+    #to erg/s/cm
+    data['dL/dr'] = data['dL/dr'] / 1e-7 / 100
+    data['dLpp/dr'] = data['dLpp/dr'] / 1e-7 / 100
+    data['dLcno/dr'] = data['dLcno/dr'] / 1e-7 / 100
+
+    #to cm^2/g
+    data['kappa'] = data['kappa'] * 10
+    data['kappaff'] = data['kappaff'] * 10
+    data['kappaes'] = data['kappaes'] * 10
+    data['kappaHm'] = data['kappaHm'] * 10
 
     savepath = os.path.join(s.plots_folder, 'star_1.png')
     plot_star(data, info=info, savepath=savepath)

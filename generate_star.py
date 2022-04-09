@@ -55,9 +55,9 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
     tau_mid = solutions_mid[5]
     tau_max = solutions_max[5]
 
-    i_min = np.argmin(tau_min[-1] - tau_min[:-2] - 2/3)
-    i_mid = np.argmin(tau_mid[-1] - tau_mid[:-2] - 2/3)
-    i_max = np.argmin(tau_max[-1] - tau_max[:-2] - 2/3)
+    i_min = np.argmin(tau_min[-1] - tau_min - 2/3)
+    i_mid = np.argmin(tau_mid[-1] - tau_mid - 2/3)
+    i_max = np.argmin(tau_max[-1] - tau_max - 2/3)
 
     R_Star_min = solutions_min[0][i_min]
     R_Star_mid = solutions_mid[0][i_mid]
@@ -79,16 +79,18 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
     # Note: if 'f' is > 0 then our L(R_star) is greater than the theoretical
 
     if fmin*fmax > 0:
-        print ("Change Initial conditions")
+        print ("Change initial conditions, no rho_c possible.")
         quit()
     else:
+        #initial condition for rhoc
         current = rhoc_mid
-        previous = 0
-        diff = 2
+        #arbitrary initializing
+        previous, diff = 0, 2
 
-        while abs(diff)>1:
-            if fmin*fmid<0: # Either fmin or fmid overshot while the other undershot
+        while abs(diff) > 1:
+            if fmin*fmid < 0: # Either fmin or fmid overshot while the other undershot
                 rhoc_max = rhoc_mid
+
                 rhoc_mid = (rhoc_min+rhoc_max)/2
 
                 # Now we re-solve ODEs using the new rhoc_mid
@@ -97,16 +99,16 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
 
                 soln = solveODEs(r_initial, r_final, y_mid, steps)
                 tau = soln[5]
-                i = np.argmin(tau[-1] - tau[:-2] - 2/3)
+                i = np.argmin(tau[-1] - tau - 2/3)
 
 
                 R_Star_mid = soln[0][i]
-                L_Star_mid = soln[4][i]
                 T_Star_mid = soln[2][i]
+                L_Star_mid = soln[4][i]
 
                 fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
 
-            elif fmid*fmax <0: # Either fmid or fmax overshot while the other undershot
+            elif fmid*fmax < 0: # Either fmid or fmax overshot while the other undershot
                 rhoc_min = rhoc_mid
                 rhoc_mid = (rhoc_min+rhoc_max)/2
 
@@ -116,20 +118,23 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
 
                 soln = solveODEs(r_initial, r_final, y_mid, steps)
                 tau = soln[5]
-                i = np.argmin(tau[-1] - tau[:-2] - 2/3)
+                i = np.argmin(tau[-1] - tau - 2/3)
 
 
                 R_Star_mid = soln[0][i]
-                L_Star_mid = soln[4][i]
                 T_Star_mid = soln[2][i]
+                L_Star_mid = soln[4][i]
 
                 fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
+
+            elif fmid == 0:
+                return rhoc_mid
 
             previous = current
             current = rhoc_mid
             diff = current - previous
 
-    return (rhoc_mid)
+    return rhoc_mid
 
 ###############################################################################
 ######################### Setting the Initial conditions ######################
@@ -145,7 +150,8 @@ y = np.array([0, Tc, 0, 0, 0])
 
 rhoc_min = 300 # min value for rho_c in g/cm^3
 rhoc_max = 500000 # max value for rho_c in g/cm^3
-rho_c = bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps) # new rho_c that satisfies the boundary consitions for luminosity
+#our solution to f(rho_c)
+rho_c = bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps)
 
 # re-defining the previos 'y' array to now contain the newly determine rho_c value
 y_new =  np.array([rho_c, Tc, 0, 0, 0])
@@ -161,7 +167,7 @@ M_values = solutions_final[3]
 L_values = solutions_final[4]
 tau_values = solutions_final[5]
 
-i = np.argmin(tau_values[-1] - tau_values[:-2] - 2/3)
+i = np.argmin(tau_values[-1] - tau_values - 2/3)
 
 
 # Declaring R_Star, Rho_Star, T_Star, M_Star, and L_Star
@@ -211,7 +217,7 @@ df = pd.DataFrame(data=zip(r_values/R_Star, rho_values, L_values, M_values, T_va
                   columns=['r/R', 'rho(r)', 'L(r)', 'M(r)', 'T(r)', 'Pgas', 'Pdeg', 'Ppho', 'P', 'dlogP/dlogT',
                            'kappa', 'kappaff', 'kappaHm', 'kappaes', 'dL/dr', 'dLpp/dr', 'dLcno/dr'])
 
-df.to_csv(os.path.join(s.data_folder, 'star_1.csv'), index=False)
+df.to_csv(rf"{os.path.join(s.data_folder, 'star_1.csv')}", index=False)
 
 quit()
 
