@@ -8,7 +8,7 @@ from standards import Standards as s
 import tools as tools
 import scipy.integrate as int
 import matplotlib.pyplot as plt
-import star_info as star_info
+#import star_info as star_info
 
 np.seterr(all='ignore')
 
@@ -295,14 +295,36 @@ plt.xlim(0,1)
 plt.legend(loc='best')
 plt.show()
 
-# # Saving results into a TXT file
-data = pd.DataFrame(data=zip(M_Star, r_values, rho_values, T_values, M_values, L_values, dL_dr_values, dL_dr_pp_values, dL_dr_cno_values, dlnP_dlnT_values, r_values/R_Star, rho_values/rho_c), columns=['M (kg)', 'r (m)', 'rho(r) (kg/cm^3)', 'T(r) (K)', 'M(r) (kg)', 'L(r) (J/s)', 'dL/dr (J/s/m)', 'dLpp/dr (J/s/m)', 'dLcno/dr (J/s/m)', 'dlogP/dlogT (J/s/m)', 'r/R', 'rho(r)/rhoc'])
-star_info.plot_star(data, info = None, savepath="")
+'''
+The arrays that hold the values of interest are:
+r_values
+rho_values
+T_values
+M_values
+L_values
+tau_values (we never actually plot this so probably don't need this)
 
-# file_name = 'test_results5.txt'
-# with open(file_name, 'w') as f:
-#     np.savetxt(file_name,np.array([r_values, r_values/R_Star, rho_values, T_values,M_values,L_values,tau_values]), delimiter='\t', fmt="%s")
+kappa_values
+kappa_ff_values
+kappa_es_values
+kappa_Hminus_values
+dL_dr_values
+dL_dr_pp_values
+dL_dr_cno_values
+dlnP_dlnT_values
 
+The constants:
+rho_c
+Tc
+R_Star
+Rho_Star
+T_Star
+M_Star
+L_Star
+'''
+# Below is my attempt at using the star_info.py and pandas
+#data = pd.DataFrame(data=zip(M_Star, r_values, rho_values, T_values, M_values, L_values, dL_dr_values, dL_dr_pp_values, dL_dr_cno_values, dlnP_dlnT_values, r_values/R_Star, rho_values/rho_c), columns=['M (kg)', 'r (m)', 'rho(r) (kg/cm^3)', 'T(r) (K)', 'M(r) (kg)', 'L(r) (J/s)', 'dL/dr (J/s/m)', 'dLpp/dr (J/s/m)', 'dLcno/dr (J/s/m)', 'dlogP/dlogT (J/s/m)', 'r/R', 'rho(r)/rhoc'])
+#star_info.plot_star(data, info = None, savepath="")
 
 ################################################################################
 ############################     DEPREACATED CODE    ###########################
