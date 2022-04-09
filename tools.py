@@ -115,16 +115,14 @@ def dP_drho(rho, T):
 
 def dlnP_dlnT(rho, T):
     '''This function will calculate the partial derivative of d(ln(P))/d(ln(T))'''
-    C1 = rho*s.k / (s.mu*s.mp)
-    C2 = (1/3)*s.a
+    A = ( ((3*np.pi**2)**(2/3)/5)*(s.hbar**2/s.me)*(rho/s.mp)**(5/3) )
+    B = rho*s.k/(s.mu*s.mp)
+    C = s.a/3
 
-    numerator = C1*T + 4*C2*T**4
-    denominator = pressure(rho, T)
-    return numerator/denominator
-    #return np.log(dP_dT(rho, T))
+    d = B*T + 4*C*np.power(T, 4)
+    n = A + B*T + C*np.power(T, 4)
+    return d/n
 
-    #A = np.log(rho*s.k / (s.mu*s.mp))
-    #B = np.log
 
 def dtau_dr(rho, T):
     '''This function will calculate the optical depth DE'''
