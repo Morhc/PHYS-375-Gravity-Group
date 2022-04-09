@@ -18,7 +18,7 @@ def solveODEs(r_init, r_fin, y0, steps):
     r_values = np.linspace(r_init, r_fin, steps)
     t_span = (r_init, r_fin)
 
-    solutions = int.solve_ivp(tools.dydr,t_span,y0,'RK45', t_eval=r_values) # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
+    solutions = int.solve_ivp(tools.dydr, t_span, y0, 'RK45', t_eval=r_values) # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
 
     rho = solutions.y[0]
     T = solutions.y[1]
@@ -27,7 +27,7 @@ def solveODEs(r_init, r_fin, y0, steps):
     tau = solutions.y[4]
     r = solutions.t # t here mean the 'time points' which in this case are the radius values or rvals
 
-    return (r,rho,T,M,L,tau)
+    return r, rho, T, M, L, tau
 
 def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
     '''This will use the bisection method to vary and determine the value for
@@ -36,15 +36,14 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
 
     rhoc_mid = (rhoc_min + rhoc_max)/2 # determine mid point for rhoc given the min and max inputs
 
-    y_min = np.array(y) # new intial value array for rhoc_min
+    y_min = np.copy(y) # new intial value array for rhoc_min
     y_min[0] = rhoc_min
 
-    y_mid = np.array(y) # new intial value array for rhoc_mid
+    y_mid = np.copy(y) # new intial value array for rhoc_mid
     y_mid[0] = rhoc_mid
 
-    y_max = np.array(y) # new intial value array for rhoc_max
+    y_max = np.copy(y) # new intial value array for rhoc_max
     y_max[0] = rhoc_max
-
 
     # Now we want to use rhoc min,mid, and max to solve the ODEs individually
     solutions_min = solveODEs(r_initial, r_final, y_min, steps)
@@ -52,88 +51,58 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
     solutions_max = solveODEs(r_initial, r_final, y_max, steps)
 
     # Need to find R_star, L_star, and T_star for the three solutions
-    tau_values_min = solutions_min[5]
-    tau_values_mid = solutions_mid[5]
-    tau_values_max = solutions_max[5]
+    tau_min = solutions_min[5]
+    tau_mid = solutions_mid[5]
+    tau_max = solutions_max[5]
 
-    tau_infinity_min = tau_values_min[len(tau_values_min)-1]
-    tau_infinity_mid = tau_values_mid[len(tau_values_mid)-1]
-    tau_infinity_max = tau_values_max[len(tau_values_max)-1]
+    i_min = np.argmin(tau_min[-1] - tau_min[:-2] - 2/3)
+    i_mid = np.argmin(tau_mid[-1] - tau_mid[:-2] - 2/3)
+    i_max = np.argmin(tau_max[-1] - tau_max[:-2] - 2/3)
 
+    R_Star_min = solutions_min[0][i_min]
+    R_Star_mid = solutions_mid[0][i_mid]
+    R_Star_max = solutions_max[0][i_max]
 
-    difference_min = []
-    difference_mid = []
-    difference_max = []
+    L_Star_min = solutions_min[4][i_min]
+    L_Star_mid = solutions_mid[4][i_mid]
+    L_Star_max = solutions_max[4][i_max]
 
-    for n in range(0,len(tau_values_min)-2):
-        difference_min.append(tau_infinity_min - tau_values_min[n] - (2/3) )
-
-    for n in range(0,len(tau_values_mid)-2):
-        difference_mid.append(tau_infinity_mid - tau_values_mid[n] - (2/3) )
-
-    for n in range(0,len(tau_values_max)-2):
-        difference_max.append(tau_infinity_max - tau_values_max[n] - (2/3) )
-
-    index_at_surface_min = np.argmin(difference_min)
-    index_at_surface_mid = np.argmin(difference_mid)
-    index_at_surface_max = np.argmin(difference_max)
-
-    R_Star_min = solutions_min[0][index_at_surface_min]
-    R_Star_mid = solutions_mid[0][index_at_surface_mid]
-    R_Star_max = solutions_max[0][index_at_surface_max]
-
-    L_Star_min = solutions_min[4][index_at_surface_min]
-    L_Star_mid = solutions_mid[4][index_at_surface_mid]
-    L_Star_max = solutions_max[4][index_at_surface_max]
-
-    T_Star_min = solutions_min[2][index_at_surface_min]
-    T_Star_mid = solutions_mid[2][index_at_surface_mid]
-    T_Star_max = solutions_max[2][index_at_surface_max]
+    T_Star_min = solutions_min[2][i_min]
+    T_Star_mid = solutions_mid[2][i_mid]
+    T_Star_max = solutions_max[2][i_max]
 
     # Using the luminosity_check (equation 17) for the valoues found using rhoc min,max, mid
     fmin = tools.luminosity_check(R_Star_min, L_Star_min, T_Star_min)
     fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
     fmax = tools.luminosity_check(R_Star_max, L_Star_max, T_Star_max)
 
-    # print(fmin)
-    # print(fmid)
-    # print(fmax)
-
     # Note: if 'f' is > 0 then our L(R_star) is greater than the theoretical
 
     if fmin*fmax > 0:
-        return (print ("Change Initial conditions"))
+        print ("Change Initial conditions")
+        quit()
     else:
         current = rhoc_mid
         previous = 0
         diff = 2
-        counter = 1
 
-        while (abs(diff)>1) and (counter<100):
+        while abs(diff)>1:
             if fmin*fmid<0: # Either fmin or fmid overshot while the other undershot
                 rhoc_max = rhoc_mid
                 rhoc_mid = (rhoc_min+rhoc_max)/2
 
                 # Now we re-solve ODEs using the new rhoc_mid
-                y_mid = np.array(y) # new intial value array for rhoc_mid
+                y_mid = np.copy(y) # new intial value array for rhoc_mid
                 y_mid[0] = rhoc_mid
 
-                solutions_mid = solveODEs(r_initial, r_final, y_mid, steps)
-                tau_values_mid = solutions_mid[5]
-                tau_infinity_mid = tau_values_mid[len(tau_values_mid)-1]
-                difference_mid = []
-
-                counter += 1
-
-                for n in range(0,len(tau_values_mid)-2):
-                    difference_mid.append(tau_infinity_mid - tau_values_mid[n] - (2/3) )
-
-                index_at_surface_mid = np.argmin(difference_mid)
+                soln = solveODEs(r_initial, r_final, y_mid, steps)
+                tau = soln[5]
+                i = np.argmin(tau[-1] - tau[:-2] - 2/3)
 
 
-                R_Star_mid = solutions_mid[0][index_at_surface_mid]
-                L_Star_mid = solutions_mid[4][index_at_surface_mid]
-                T_Star_mid = solutions_mid[2][index_at_surface_mid]
+                R_Star_mid = soln[0][i]
+                L_Star_mid = soln[4][i]
+                T_Star_mid = soln[2][i]
 
                 fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
 
@@ -142,60 +111,44 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
                 rhoc_mid = (rhoc_min+rhoc_max)/2
 
                 # Now we re-solve ODEs using the new rhoc_mid
-                y_mid =  np.array(y) # new intial value array for rhoc_mid
+                y_mid =  np.copy(y) # new intial value array for rhoc_mid
                 y_mid[0] = rhoc_mid
 
-                solutions_mid = solveODEs(r_initial, r_final, y_mid, steps)
-                tau_values_mid = solutions_mid[5]
-                tau_infinity_mid = tau_values_mid[len(tau_values_mid)-1]
-                difference_mid = []
-
-                for n in range(0,len(tau_values_mid)-2):
-                    difference_mid.append(tau_infinity_mid - tau_values_mid[n] - (2/3) )
-
-                index_at_surface_mid = np.argmin(difference_mid)
+                soln = solveODEs(r_initial, r_final, y_mid, steps)
+                tau = soln[5]
+                i = np.argmin(tau[-1] - tau[:-2] - 2/3)
 
 
-                R_Star_mid = solutions_mid[0][index_at_surface_mid]
-                L_Star_mid = solutions_mid[4][index_at_surface_mid]
-                T_Star_mid = solutions_mid[2][index_at_surface_mid]
+                R_Star_mid = soln[0][i]
+                L_Star_mid = soln[4][i]
+                T_Star_mid = soln[2][i]
 
                 fmid = tools.luminosity_check(R_Star_mid, L_Star_mid, T_Star_mid)
-                counter += 1
 
             previous = current
             current = rhoc_mid
             diff = current - previous
+
     return (rhoc_mid)
 
 ###############################################################################
 ######################### Setting the Initial conditions ######################
 ###############################################################################
 r_initial = 1
-r_final = 1000000000
-steps = 1000 # step size
+r_final = 1e9
+steps = 10000 #number of steps
 
-rho_c = 89203# (in kg/m^3) a new value for rho_c will be found using the bisection method
-Tc = 9.8e6 # (core temperature in K) we will choose Tc to be the MS paramter
-M = (4/3)*np.pi*(r_initial**3)*rho_c # calculating the intial mass using the initial radius and densities specified
-L = (4/3)*np.pi*(r_initial**3)*rho_c*tools.epsilon(rho_c, Tc) # calculating the intial luminosity using the initial radius and densities specified
-tau = tools.kappa(rho_c, Tc)*rho_c*r_initial # calculating the intial tau using the initial radius and densities specified
-lam = 0 # This is the lambda for the gravity modification (=0 for not modification)
-# del_tau = tools.del_tau(rho_c,Tc,r,M,L) # intial value for the opacity proxy
-# del_tau_threshold = 1e-5 # threshold value for the opacity proxy
-# MassLimit = s.Msun*(1e3) # mass limit for integration
+Tc = 8.23544e+06  # (core temperature in K) we will choose Tc to be the MS paramter
 
 # intializing an array that contains the intial values for density, temperature, mass, luminosity and tau
-y = np.zeros(5)
-y = rho_c, Tc, M, L, tau
+y = np.array([0, Tc, 0, 0, 0])
 
-rhoc_min = 300 # min value for rho_c in kg/m**3
-rhoc_max = 500000 # max value for rho_c in kg/m**3
-rho_c =  bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps) # new rho_c that satisfies the boundary consitions for luminosity
+rhoc_min = 300 # min value for rho_c in g/cm^3
+rhoc_max = 500000 # max value for rho_c in g/cm^3
+rho_c = bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps) # new rho_c that satisfies the boundary consitions for luminosity
 
 # re-defining the previos 'y' array to now contain the newly determine rho_c value
-y_new = np.array(y)
-y_new[0] = rho_c
+y_new =  np.array([rho_c, Tc, 0, 0, 0])
 
 # Solving the ODEs
 solutions_final = solveODEs(r_initial, r_final, y_new, steps)
@@ -207,22 +160,15 @@ T_values = solutions_final[2]
 M_values = solutions_final[3]
 L_values = solutions_final[4]
 tau_values = solutions_final[5]
-tau_infinity = tau_values[len(tau_values)-1] # tau_infinity set to be the last value in tau_values
-difference = []
 
-# Looping over all tau_values and subtraction 2/3 and tau_value out of tau_infinity.
-# This expression as defined by section 2.2.1 should be 0 at R_Star
-for n in range(0,len(tau_values)-2):
-    difference.append(tau_infinity - tau_values[n] - (2/3) )
+i = np.argmin(tau_values[-1] - tau_values[:-2] - 2/3)
 
-# Obtaining the array index for the lowest value in the difference
-index_at_surface = np.argmin(difference)
 
 # Declaring R_Star, Rho_Star, T_Star, M_Star, and L_Star
-R_Star = r_values[index_at_surface]
-Rho_Star = rho_values[index_at_surface]
-M_Star = M_values[index_at_surface]
-L_Star = L_values[index_at_surface]
+R_Star = r_values[i]
+Rho_Star = rho_values[i]
+M_Star = M_values[i]
+L_Star = L_values[i]
 T_Star = (L_Star/(4*np.pi*s.sb*(R_Star**2)))**(1/4) #T_values[index_at_surface]
 
 # Saving all values related to pressure
@@ -250,6 +196,24 @@ dL_dr_cno_values = tools.dL_dr_CNO(rho_values , T_values, r_values)
 
 # Saving all values for dln(P)/dln(T) partial derivative
 dlnP_dlnT_values = tools.dlnP_dlnT(rho_values , T_values)
+
+print('Saving the data')
+### SAVING OUT THE DATA ###
+summary_file = os.path.join(s.data_folder, 'generated_stars.csv')
+
+with open(summary_file, 'a+') as f:
+    f.write(f'{rho_c},{Tc},{R_Star},{M_Star},{L_Star},{T_Star}\n')
+
+df = pd.DataFrame(data=zip(r_values/R_Star, rho_values, L_values, M_values, T_values, P_ideal_values,
+                           P_degen_values, P_photongas_values, P_values, dlnP_dlnT_values,
+                           kappa_values, kappa_ff_values, kappa_Hminus_values, kappa_es_values,
+                           dL_dr_values, dL_dr_pp_values, dL_dr_cno_values),
+                  columns=['r/R', 'rho(r)', 'L(r)', 'M(r)', 'T(r)', 'Pgas', 'Pdeg', 'Ppho', 'P', 'dlogP/dlogT',
+                           'kappa', 'kappaff', 'kappaHm', 'kappaes', 'dL/dr', 'dLpp/dr', 'dLcno/dr'])
+
+df.to_csv(os.path.join(s.data_folder, 'star_1.csv'), index=False)
+
+quit()
 
 print('R_star is', R_Star/s.Rsun)
 print('Rho_star is', Rho_Star)

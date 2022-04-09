@@ -28,6 +28,7 @@ class Standards:
     # Project specific constants
     gamma = 5/3 # ideal gas
     X = 0.73 # need to adjust these values. Ensure that X+Y+Z = 1
+    X_CNO = 0.03*X
     Y = 0.25
     Z = 0.02
     mu = (2*X + 0.75*Y + 0.5*Z)**(-1)

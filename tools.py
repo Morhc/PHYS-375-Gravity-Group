@@ -26,120 +26,21 @@ def dydr(r,y) :
     """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
        matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth, lambda]
     """
-    rho = y[0]
-    T = y[1]
-    M = y[2]
-    L = y[3]
-    tau = y[4]
+    rho, T, M, L, tau = y
 
     # The five ODEs we are trying to solve (equation 2)
-    dydr = np.zeros(5)
-    dydr[0] = drho_dr(rho, T, r, M,L)
-    dydr[1] = dT_dr(rho, T, r, L, M)
-    dydr[2] = dM_dr(rho, r)
-    dydr[3] = dL_dr(rho , T, r)
-    dydr[4] = dtau_dr(rho, T)
+    dydr = np.array([drho_dr(rho, T, r, L, M), dT_dr(rho, T, r, L, M), dM_dr(rho, r), dL_dr(rho, T, r), dtau_dr(rho, T)])
 
     return dydr
-
-def RKF45Method_adaptive(f,r,y,h):
-    '''Second RK4Method which invovled adpative step sizes
-       I followed the algorithm outlined here -> https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta%E2%80%93Fehlberg_method#Implementing_an_RK4(5)_Algorithm
-       The coefficietns for 'A' were taken from the table title "COEFFICIENTS FOR RK4(5), FORMULA 2 Table III in Fehlberg"
-
-       Input(s):
-       - 'r' - array of radius
-       - 'y' - 5 column matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
-       - 'h' - the stepsize
-
-       Output(s):
-       - 'y5' - 5th order solutions to ODE
-       - 'hnew' - the new adpted stepsize
-    '''
-    K1 = h*f(r,y)
-    K2 = h*f( r + (1/4)*h, y + (1/4)*K1 )
-    K3 = h*f( r + (3/8)*h, y + (3/32)*K1 + (9/32)*K2 )
-    K4 = h*f( r + (12/13)*h, y + (1932/2197)*K1 + (-7200/2197)*K2 + (7296/2197)*K3 )
-    K5 = h*f( r + (1)*h, y + (439/216)*K1 + (-8)*K2 + (3680/513)*K3 + (-845/4104)*K4 )
-    K6 = h*f( r + (1/2)*h, y + (-8/27)*K1 + (2)*K2 + (-3544/2565)*K3 + (1859/4104)*K4 + (-11/40)*K5 )
-
-    # The truncation error (TE)
-    TE = abs( (1/360)*K1 + (0)*K2 + (-128/4275)*K3 + (-2197/75240)*K4 + (1/50)*K5 + (2/55)*K6 )
-
-    # the error estimate of the RKF45 method
-    y5 = y + (25/216)*K1 + (1408/2565)*K3 + (2197/4101)*K4 - (1/5)*K5
-    y4 = y + (16/135)*K1 + (6656/12825)*K3 + (28561/56430)*K4 - (9/50)*K5 + (2/55)*K6
-    error = abs( y5 - y4)
-
-    # Calcuating the new step-sizes
-    hnew = 0.9*h*( (min(error)/TE)**(1/5) )
-    return(y5,hnew)
-
-
-def RK4Method(ri,rf,y0,h):
-    """Performing the RK4 algorithm.
-       y0 are the initial conditions for rho, temp, mass, luminosity and  tau (in that order)
-    """
-
-    #Setting up r and y
-    steps = int((rf-ri)/h)
-    r = np.linspace(ri,rf,steps)
-    y = np.zeros( (5, len(r)) )
-
-    #initial conditions
-
-    y[0,0] = y0[0]   # intial rho
-    y[0,1] = y0[1]  # inital temp
-    y[0,2] = y0[2] # inital mass - centre boundary condition
-    y[0,3] = y0[3]  # intial luminosity?- centre boundary condition
-    y[0,4] = y0[4]  # inital optical depth (tau)
-
-
-
-    #for loop to calculate y matrix using RK4 method. Should output rho,Temp,Mass,Luminosity,OpticalDepth at all radii
-    for i in range(r.size - 1):
-
-        k0 = h*dydr(r[i],y[i,:])[0]
-        k1 = h*dydr(r[i],y[i,:])[1]
-        k2 = h*dydr(r[i],y[i,:])[2]
-        k3 = h*dydr(r[i],y[i,:])[3]
-        k4 = h*dydr(r[i],y[i,:])[4]
-
-        s0 = h*dydr(r[i]+h/2,[y[i,0]+k0/2,y[i,1]+k1/2,y[i,2]+k2/2,y[i,3]+k3/2,y[i,4]+k4/2])[0]
-        s1 = h*dydr(r[i]+h/2,[y[i,0]+k0/2,y[i,1]+k1/2,y[i,2]+k2/2,y[i,3]+k3/2,y[i,4]+k4/2])[1]
-        s2 = h*dydr(r[i]+h/2,[y[i,0]+k0/2,y[i,1]+k1/2,y[i,2]+k2/2,y[i,3]+k3/2,y[i,4]+k4/2])[2]
-        s3 = h*dydr(r[i]+h/2,[y[i,0]+k0/2,y[i,1]+k1/2,y[i,2]+k2/2,y[i,3]+k3/2,y[i,4]+k4/2])[3]
-        s4 = h*dydr(r[i]+h/2,[y[i,0]+k0/2,y[i,1]+k1/2,y[i,2]+k2/2,y[i,3]+k3/2,y[i,4]+k4/2])[4]
-
-        l0 = h*dydr(r[i]+h/2,[y[i,0]+s0/2,y[i,1]+s1/2,y[i,2]+s2/2,y[i,3]+s3/2,y[i,4]+s4/2])[0]
-        l1 = h*dydr(r[i]+h/2,[y[i,0]+s0/2,y[i,1]+s1/2,y[i,2]+s2/2,y[i,3]+s3/2,y[i,4]+s4/2])[1]
-        l2 = h*dydr(r[i]+h/2,[y[i,0]+s0/2,y[i,1]+s1/2,y[i,2]+s2/2,y[i,3]+s3/2,y[i,4]+s4/2])[2]
-        l3 = h*dydr(r[i]+h/2,[y[i,0]+s0/2,y[i,1]+s1/2,y[i,2]+s2/2,y[i,3]+s3/2,y[i,4]+s4/2])[3]
-        l4 = h*dydr(r[i]+h/2,[y[i,0]+s0/2,y[i,1]+s1/2,y[i,2]+s2/2,y[i,3]+s3/2,y[i,4]+s4/2])[4]
-
-        p0 = h*dydr(r[i]+h,[y[i,0]+l0,y[i,1]+l1,y[i,2]+l2,y[i,3]+l3,y[i,4]+l3])[0]
-        p1 = h*dydr(r[i]+h,[y[i,0]+l0,y[i,1]+l1,y[i,2]+l2,y[i,3]+l3,y[i,4]+l3])[1]
-        p2 = h*dydr(r[i]+h,[y[i,0]+l0,y[i,1]+l1,y[i,2]+l2,y[i,3]+l3,y[i,4]+l3])[2]
-        p3 = h*dydr(r[i]+h,[y[i,0]+l0,y[i,1]+l1,y[i,2]+l2,y[i,3]+l3,y[i,4]+l3])[3]
-        p4 = h*dydr(r[i]+h,[y[i,0]+l0,y[i,1]+l1,y[i,2]+l2,y[i,3]+l3,y[i,4]+l3])[4]
-
-        y[i+1,0] = y[i+1,0] + 1/6*(k0+2*s0+2*l0+p0)
-        y[i+1,2] = y[i+1,1] + 1/6*(k1+2*s1+2*l1+p1)
-        y[i+1,3] = y[i+1,2] + 1/6*(k2+2*s2+2*l2+p2)
-        y[i+1,4] = y[i+1,3] + 1/6*(k3+2*s3+2*l3+p3)
-        y[i+1,5] = y[i+1,4] + 1/6*(k4+2*s4+2*l4+p4)
-
-        return y
 
 def epsilon(rho, T):
     '''Determining the value of epislon using equations 8 and 9'''
 
-    X_CNO = 0.03*s.X # X would need to be a globally defined variable
     rho_5 = rho/1e5
     T_6 = T/1e6
 
     e_pp = (1.07e-7)*rho_5*np.power(s.X,2)*np.power(T_6,4) # output vale is units of W/kg
-    e_cno = (8.24e-26)*rho_5*s.X*X_CNO*( (T_6)**(19.9) ) # output vale is units of W/kg
+    e_cno = (8.24e-26)*rho_5*s.X*s.X_CNO*( (T_6)**(19.9) ) # output vale is units of W/kg
 
     e = e_pp + e_cno
 
@@ -147,13 +48,13 @@ def epsilon(rho, T):
 
 def kappa_es():
     '''Calcualte and return the value for kappa_es in m**2/kg'''
-    return (0.028*(1 + s.X))
+    return 0.02*(1 + s.X)
 
 def kappa_ff(rho, T):
     '''Calcualte and return the value for kappa_ff in m**2/kg'''
     rho_3 = rho/1e3
 
-    return ( (1.0e24)*(s.Z + 0.0001)*( (rho_3)**(0.7) )*( (T)**(-3.5) ) )
+    return ( 1e24*(s.Z + 0.0001)*( (rho_3)**(0.7) )*( (T)**(-3.5) ) )
 
 def kappa_Hminus(rho, T):
     '''Calcualte and return the value for kappa_Hminus in m**2/kg'''
@@ -176,11 +77,11 @@ def kappa(rho, T):
 
 def P_degen(rho):
     '''Calculate the degenerate pressure'''
-    return ( ( (3*np.pi**2)**(2/3) / 5 )*( s.hbar**2 / s.me )*( rho / s.mp)**(5/3) )
+    return ( ((3*np.pi**2)**(2/3)/5)*(s.hbar**2/s.me)*(rho/s.mp)**(5/3))
 
 def P_ideal(rho,T):
     '''Calculate the ideal gas pressure'''
-    return (rho*s.k*T/s.mu*s.mp)
+    return (rho*s.k*T/(s.mu*s.mp))
 
 def P_photongas(T):
     '''Calculate the photon gas pressure'''
@@ -193,7 +94,7 @@ def pressure(rho, T):
     P_id = P_ideal(rho,T)
     P_pg = P_photongas(T)
 
-    return ( P_deg + P_id + P_pg )
+    return P_deg + P_id + P_pg
 
 def dP_dT(rho, T):
     '''This function will calcualte the partial derivate of pressure with respect to temperature (see equation 5)'''
@@ -213,19 +114,20 @@ def dP_drho(rho, T):
     return ( (A*B) + C )
 
 def dlnP_dlnT(rho, T):
-    '''This function will calculat the partial derivative of d(ln(P))/d(ln(T))'''
+    '''This function will calculate the partial derivative of d(ln(P))/d(ln(T))'''
     C1 = rho*s.k / (s.mu*s.mp)
     C2 = (1/3)*s.a*T
 
     numerator = C1*T + 4*C2*T**4
     denominator = pressure(rho, T)
-    return ( numerator/denominator )
+    #return numerator/denominator
+    return np.log(dP_dT(rho, T))
 
 def dtau_dr(rho, T):
     '''This function will calculate the optical depth DE'''
     '''Calls the kappa function for the opacity'''
 
-    return ( kappa(rho, T)*rho )
+    return kappa(rho, T)*rho
 
 def dL_dr_PP(rho,T,r):
     '''This function will calcualte dL/dr using only e_pp'''
@@ -238,54 +140,49 @@ def dL_dr_PP(rho,T,r):
 
 def dL_dr_CNO(rho,T,r):
     '''This function will calcualte dL/dr using only e_cno'''
-    X_CNO = 0.03*s.X # X would need to be a globally defined variable
     rho_5 = rho/1e5
     T_6 = T/1e6
 
-    e_cno = (8.24e-26)*rho_5*s.X*X_CNO*( (T_6)**(19.9) ) # output vale is units of W/kg
+    e_cno = (8.24e-26)*rho_5*s.X*s.X_CNO*( (T_6)**(19.9) ) # output vale is units of W/kg
 
     return ( 4*np.pi*(r**2)*rho*e_cno )
 
-def dL_dr(rho , T, r):
+def dL_dr(rho, T, r):
     '''This function will calcualte the luminosity DE'''
 
-    return ( 4*np.pi*(r**2)*rho*epsilon(rho, T) )
+    return 4*np.pi*(r**2)*rho*epsilon(rho, T)
 
 def dM_dr(rho, r):
     '''This function will calculate the mass DE'''
-    return ( 4*np.pi*(r**2)*rho )
+    return 4*np.pi*(r**2)*rho
 
 def dT_dr(rho, T, r, L, M):
     '''This function will calcualte the termperature DE'''
 
-    A = 3*kappa(rho, T)*rho*L/(16*np.pi*(s.sb*4)*(T**3)*(r**2))
-    B = (1-1/s.gamma)*(T/pressure(rho,T))*(s.G*M*rho/(r**2))
+    A = 3*kappa(rho, T)*rho*L/(16*np.pi*(s.c*s.a)*(T**3)*(r**2))
+    B = (1 - 1/s.gamma)*(T/pressure(rho,T))*(s.G*M*rho/(r**2))
 
     min_value = -np.minimum(A,B)
 
-    return (min_value)
+    return min_value
 
-def drho_dr(rho, T, r, M,L):
+def drho_dr(rho, T, r, L, M):
     '''This fucntion will calcualte the density DE'''
 
     A = ( (s.G*M*rho) / (r**2) )
-    B = (dP_dT(rho, T) )*(dT_dr(rho, T, r, L, M))
+    B = dP_dT(rho, T)*dT_dr(rho, T, r, L, M)
     C = dP_drho(rho, T)
 
-    return ( (-(A+B))/C )
+    return -(A+B)/C
 
-def del_tau(rho,T,r,M,L):
-    '''This fucntion will calcualte the opacity proxy'''
-    return kappa(rho,T)*(rho**2) / (abs(drho_dr(rho, T, r, M,L)))
-
-def luminosity_check(r, L, T):
+def luminosity_check(R, L, T):
     '''This function will check L(R_star) with the theoretical luminosity
     See equation 17 in the project description
     '''
-    theoretical = 4*np.pi*s.sb*(r**2)*(T**4)
+    theoretical = 4*np.pi*s.sb*(R**2)*(T**4)
     f = (L-theoretical) / np.sqrt(L*theoretical)
 
-    return(f)
+    return f
 
 
 # ---------------------------------
