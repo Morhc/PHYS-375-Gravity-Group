@@ -80,7 +80,7 @@ def LM_diag(data, savepath=""):
     for xx in data:
         fff, lam = xx
 
-        Lscaled = fff.L/s.Lsun * 1e-7
+        Lscaled = fff.L/s.Lsun * 1e-7  * 1e-7
         Mscaled = fff.M/s.Msun / 1000
 
         ax.plot(Mscaled, Lscaled, label=rf'$\lambda$ = {lam}')

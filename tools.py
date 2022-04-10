@@ -7,7 +7,11 @@ import pandas as pd
 from standards import Standards as s
 
 def load_data():
-    """Loads in the data. Warning, the data is in CGMS units, NOT SI units.
+    """Loads in Broderick's data. Warning, the data is in CGMS units, NOT SI units.
+    OUTPUTS:
+        highmass - A DataFrame of the high mass star's information.
+        lowmass - A DataFrame of the low mass star's information.
+        summary - A summary of the star information.
     """
 
     #all the data for a single high mass star
@@ -23,7 +27,9 @@ def load_data():
 
 def dydr(r,y) :
     """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
-       matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth, lambda]
+       matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth, lambda].
+
+       DEFUNCT.
     """
     rho, T, M, L, tau = y
 
