@@ -85,6 +85,17 @@ def LM_diag(data, savepath=""):
 
         ax.plot(Mscaled, Lscaled, label=rf'$\lambda$ = {lam}')
 
+    #from Ryden p. 330
+    Mtest = np.linspace(0.1, 10, 100)
+    Ltest = []
+    for M in Mtest:
+        if M < 0.7:
+            Ltest.append(0.35*(M**2.62))
+        else:
+            Ltest.append(1.02*(M**3.92))
+
+    plt.plot(Mtest, Ltest, label='Expectation', ls='--')
+
     ax.set_xlabel(r'$M$/$M_\odot$')
     ax.set_ylabel(r'$L$/$L_\odot$')
 
@@ -114,6 +125,17 @@ def RM_diag(data, savepath=""):
         Mscaled = fff.M/s.Msun / 1000
         ax.plot(Mscaled, Rscaled, label=rf'$\lambda$ = {lam}')
 
+    #from Ryden p. 330
+    Mtest = np.linspace(0.1, 10, 100)
+    Rtest = []
+    for M in Mtest:
+        if M < 1.66:
+            Rtest.append(1.06*(M**0.945))
+        else:
+            Rtest.append(1.33*(M**0.555))
+
+    plt.plot(Mtest, Rtest, label='Expectation', ls='--')
+
     ax.set_xlabel(r'$M$/$M_\odot$')
     ax.set_ylabel(r'$R$/$R_\odot$')
 
@@ -132,7 +154,7 @@ def RM_diag(data, savepath=""):
 if __name__ == '__main__':
 
     both = []
-    for lam in [-100, -10, 0, 500]:
+    for lam in [-100, -10, 0, 10, 100, 500]:
         data = pd.read_csv(os.path.join(s.data_folder, f'stars_lam_{lam}', 'generated_stars.csv'), header=0)[:50]
         both.append((data, lam))
 
