@@ -180,11 +180,11 @@ if __name__ == '__main__':
         plot_star(data, info = info, savepath = savepath)
     """
 
-    summary = os.path.join(s.data_folder, 'generated_stars.csv')
+    summary = os.path.join(s.data_folder, 'summary_test.csv')
     info = pd.read_csv(summary, header=0).iloc[-1, :]
 
-    star = os.path.join(s.data_folder, 'star_1.csv')
+    star = os.path.join(s.data_folder, 'test_star.csv')
     data = pd.read_csv(star, header=0)
 
-    savepath = os.path.join(s.plots_folder, 'star_1.png')
+    savepath = os.path.join(s.plots_folder, 'test_star.png')
     plot_star(data, info=info, savepath=savepath)
