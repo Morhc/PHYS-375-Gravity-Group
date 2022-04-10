@@ -7,23 +7,26 @@ from standards import Standards as s
 from generate_star import create_star
 
 def main():
-    Tc = 8.23544e+06  # (core temperature in K) we will choose Tc to be the MS paramter
 
+    for num, scale in enumerate(range(1, 100)):
 
-    df, star_data = create_star(Tc)
+        print(f'Generating star {num}')
 
-    rho_c, Tc, R_star, M_star, L_star, T_star = star_data
+        Tc = scale*1e6  # (core temperature in K) we will choose Tc to be the MS paramter
 
-    print('Saving the data')
-    ### SAVING OUT THE DATA ###
-    summary_file = os.path.join(s.data_folder, 'generated_stars.csv')
+        df, star_data = create_star(Tc)
 
-    with open(summary_file, 'a+') as f:
-        #converting to cgms units
-        f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star}\n')
+        rho_c, Tc, R_star, M_star, L_star, T_star = star_data
 
-    df.to_csv(rf"{os.path.join(s.data_folder, 'star_1.csv')}", index=False)
+        print('Saving the data')
+        ### SAVING OUT THE DATA ###
+        summary_file = os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv')
 
+        with open(summary_file, 'a+') as f:
+            #converting to cgms units
+            f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star},{num}\n')
+
+        df.to_csv(rf"{os.path.join(s.data_folder, 'stars_lam_0', f'star_{num}.csv')}", index=False)
 
 if __name__ == "__main__":
     main()

@@ -143,7 +143,7 @@ def create_star(Tc):
     """
     #set the initial conditions
     r_initial = 1
-    r_final = 5e8
+    r_final = 1e9
     steps = 10000 #number of steps
 
     # intializing an array that contains the intial values for density, temperature, mass, luminosity and tau
