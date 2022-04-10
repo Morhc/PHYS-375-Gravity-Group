@@ -20,13 +20,13 @@ def main():
 
         print('Saving the data')
         ### SAVING OUT THE DATA ###
-        summary_file = os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv')
+        summary_file = os.path.join(s.data_folder, 'stars_lam_10', 'generated_stars.csv')
 
         with open(summary_file, 'a+') as f:
             #converting to cgms units
             f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star},{num}\n')
 
-        df.to_csv(rf"{os.path.join(s.data_folder, 'stars_lam_0', f'star_{num}.csv')}", index=False)
+        df.to_csv(rf"{os.path.join(s.data_folder, 'stars_lam_10', f'star_{num}.csv')}", index=False)
 
 if __name__ == "__main__":
     main()
