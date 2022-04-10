@@ -8,7 +8,7 @@ from generate_star import create_star
 
 def main():
 
-    for num, scale in enumerate(range(1, 100)):
+    for num, scale in enumerate(range(1, 100+1), start=0):
 
         print(f'Generating star {num}')
 
