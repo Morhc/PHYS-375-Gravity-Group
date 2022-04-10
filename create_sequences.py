@@ -24,7 +24,6 @@ def main():
         summary_file = os.path.join(s.data_folder, 'stars_lam_10', 'generated_stars.csv')
 
         with open(summary_file, 'a+') as f:
-            #converting to cgms units
             f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star},{num}\n')
 
         df.to_csv(rf"{os.path.join(s.data_folder, 'stars_lam_10', f'star_{num}.csv')}", index=False)
@@ -35,7 +34,6 @@ def main():
     rho_c, Tc, R_star, M_star, L_star, T_star = star_data
     summary_file = os.path.join(s.data_folder, 'summary_test.csv')
     with open(summary_file, 'a+') as f:
-        #converting to cgms units
         f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star}\n')
     df.to_csv(rf"{os.path.join(s.data_folder, 'test_star.csv')}", index=False)
 

@@ -39,84 +39,170 @@ def dydr(r,y) :
     return dydr
 
 def epsilon(rho, T):
-    '''Determining the value of epislon using equations 8 and 9'''
+    """Calculates epsilon using Equations 8 and 9 from the project description.
+    INPUTS:
+        rho - The density of the star at some radius.
+        T - The temperature of the star at some radius.
+    OUPUTS:
+        eps - The total energy generation of the star, in W/kg.
+    """
 
-    rho_5 = rho/1e5
-    T_6 = T/1e6
+    rho5, T6 = rho/1e5, T/1e6
 
-    e_pp = (1.07e-7)*rho_5*np.power(s.X,2)*np.power(T_6,4) # output vale is units of W/kg
-    e_cno = (8.24e-26)*rho_5*s.X*s.X_CNO*( (T_6)**(19.9) ) # output vale is units of W/kg
+    epp = (1.07e-7)*rho5*(s.X**2)*np.power(T6, 4) #PP-chain, in W/kg
+    ecno = (8.24e-26)*rho5*s.X*s.X_CNO*np.power(T6, 19.9) #CNO cycle, in W/kg
 
-    e = e_pp + e_cno
+    eps = epp + ecno
 
-    return (e)
+    return eps
 
 def kappa_es():
-    '''Calcualte and return the value for kappa_es in m**2/kg'''
-    return 0.02*(1 + s.X)
+    """Calculates the Rosseland mean opacity for electron scattering via Equation 10 from the project
+    description.
+    OUTPUTS:
+        kappaes - The Rosseland mean opactiy for electron scattering, in m^2/kg.
+    """
+
+    kappaes = 0.02*(1+s.X)
+
+    return kappaes
 
 def kappa_ff(rho, T):
-    '''Calcualte and return the value for kappa_ff in m**2/kg'''
-    rho_3 = rho/1e3
+    """Calculates the Rosseland mean opacity for a Kramers-like aproximation to free-free interaction
+    via Equation 11 in the project description.
+    INPUTS:
+        rho - The density of the star at some radius.
+        T - The temperature of the star at some radius.
+    OUTPUTS:
+        kappaff - The Rosseland mean opactiy for free-free, in m^2/kg.
+    """
 
-    return ( 1e24*(s.Z + 0.0001)*( (rho_3)**(0.7) )*( (T)**(-3.5) ) )
+    rho3 = rho/1e3
+
+    kappaff = (1e24)*(s.Z+0.0001)*np.power(rho3, 0.7)*np.power(T, -3.5)
+
+    return kappaff
 
 def kappa_Hminus(rho, T):
-    '''Calcualte and return the value for kappa_Hminus in m**2/kg'''
-    rho_3 = rho/1e3
+    """Calculates the Rosseland mean opacity due to Hminus at sufficiently low temperatures near surface
+    via Equation 12 in the project description.
+    INPUTS:
+        rho - The density of the star at some radius.
+        T - The temperature of the star at some radius.
+    OUTPUTS:
+        kappaHm - The Rosseland mean opactiy for Hminus, in m^2/kg.
+    """
 
-    return ( (2.5e-32)*(s.Z / 0.02)*( (rho_3)**(0.5) )*( (T)**(9) ) )
+    rho3 = rho/1e3
+    kappaHm = (2.5e-32)*(s.Z/0.02)*np.power(rho3, 0.5)*np.power(T, 9)
+
+    return kappaHm
 
 def kappa(rho, T):
-    '''Determing the value for kappa using equation 10,11,12,13 and 14'''
+    """Calculates the radiative opacity via Equation 14 in the project description.
+    INPUTS:
+        rho - The density of the star at some radius.
+        T - The temperature of the star at some radius.
+    OUTPUTS:
+        kappa - The radiative opacity, in m^2/kg.
 
-    kappa_es_value = kappa_es()
-    kappa_ff_value = kappa_ff(rho, T) # Z would need to be a globally defined variable # units of m^2/kg
-    kappa_Hminus_value = kappa_Hminus(rho,T)
+    """
 
-    # splitting the term into two
-    A = 1/kappa_Hminus_value
-    B = 1/max(kappa_es_value,kappa_ff_value)
+    kappaes = kappa_es()
+    kappaff = kappa_ff(rho, T)
+    kappaHm = kappa_Hminus(rho, T)
 
-    return ( np.power(A+B,-1) )
+    kappa = np.power(1/kappaHm + 1/max(kappaes, kappaff), -1)
+
+    return kappa
 
 def P_degen(rho):
-    '''Calculate the degenerate pressure'''
-    return ( ((3*np.pi**2)**(2/3)/5)*(s.hbar**2/s.me)*(rho/s.mp)**(5/3))
+    """Calculates the non-relativistic degenerate pressure, from Equation 5 in the project description.
+    INPUTS:
+        rho - The density of the star at some radius.
+    OUTPUTS:
+        Pdeg - The degenerate pressure, in Pa.
+    """
+
+    Pdeg = np.power(3*(np.pi**2), 2/3)*np.power(s.hbar,2)*np.power(rho/s.mp, 5/3)/(5*s.me)
+
+    return Pdeg
 
 def P_ideal(rho,T):
-    '''Calculate the ideal gas pressure'''
-    return (rho*s.k*T/(s.mu*s.mp))
+    """Calculates the pressure from an ideal gas, from Equation 5 in the project description.
+    INPUTS:
+        rho - The density of the star at some radius.
+        T - The temperature of the star at some radius.
+    OUTPUTS:
+        Pgas - The ideal pressure, in Pa.
+    """
+
+    Pgas = rho*s.k*T/(s.mu*s.mp)
+
+    return Pgas
 
 def P_photongas(T):
-    '''Calculate the photon gas pressure'''
-    return ((s.a*T**4)/3)
+    """Calculates the pressure from the photon gas, from Equation 5 in the project description.
+    INPUTS:
+        T - The temperature of the star at some radius.
+    OUTPUTS:
+        Ppho - The photon pressure, in Pa.
+    """
+
+    Ppho = s.a*np.power(T, 4)/3
+
+    return Ppho
 
 def pressure(rho, T):
-    '''Calcualting the pressure as described by equation 5 and 6 '''
+    """Calculates the pressure via Equation 5 in the projection description.
+    INPUTS:
+        rho - The density of the star at some radius.
+        T - The temperature of the star at some radius.
+    OUTPUTS:
+        P - The pressure, in Pa.
+        Pdeg - The degenerate pressure, in Pa.
+        Pgas - The ideal pressure, in Pa.
+        Ppgo - The photon pressure, in Pa.
+    """
 
-    P_deg = P_degen(rho)
-    P_id = P_ideal(rho,T)
-    P_pg = P_photongas(T)
+    Pdeg = P_degen(rho)
+    Pgas = P_ideal(rho,T)
+    Ppho = P_photongas(T)
 
-    return P_deg + P_id + P_pg
+    P = Pdeg + Pgas + Ppho
+
+    return P
 
 def dP_dT(rho, T):
-    '''This function will calcualte the partial derivate of pressure with respect to temperature (see equation 5)'''
-    # Taking the partial derivative wrt temperature of eqution 5
-    A = rho*s.k / (s.mu*s.mp)
-    B = (4/3)*s.a*T**3
+    """Calculates the partial derivative of the pressure wrt temperature via Equation 7 in the project
+    description.
+    INPUTS:
+        rho - The density of the star at some radius.
+        T - The temperature of the star at some radius.
+    OUTPUTS:
+        dP_dT - The partial derivative of the pressure wrt temperature, in Pa/K.
+    """
 
-    return A + B
+    dP_dT = rho*s.k/(s.mu*s.mp) + s.a*np.power(T, 3)*4/3
+
+    return dP_dT
 
 def dP_drho(rho, T):
-    '''This function will calcualte the partial derivate of pressure with respect to density (see equation 5)'''
-    # Taking the partial derivative wrt density of eqution 5
-    A = ( (3*np.pi**2)**(2/3) / 3 )*( s.hbar**2 / (s.me*s.mp) )
-    B = ( rho / s.mp)**(2/3)
-    C = s.k*T/ (s.mu*s.mp)
+    """Calculates the partial derivative of the pressure wrt rho via Equation 7 in the project
+    description.
+    INPUTS:
+        rho - The density of the star at some radius.
+        T - The temperature of the star at some radius.
+    OUTPUTS:
+        dP_drho - The partial derivative of the pressure wrt rho, in Pa m^3/kg [J/kg].
+    """
 
-    return ( (A*B) + C )
+    A = np.power(3*(np.pi**2), 2/3)*np.power(s.hbar,2)*np.power(rho/s.mp, 2/3)/(3*s.me*s.mp)
+    B = s.k*T/(s.mu*s.mp)
+
+    dP_drho = A + B
+
+    return dP_drho
 
 def dlnP_dlnT(P, T):
     '''This function will calculate the partial derivative of d(ln(P))/d(ln(T))'''

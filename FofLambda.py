@@ -20,12 +20,13 @@ def dydr_gscaled(r,y) :
 
     rho, T, M, L, tau = y
 
+
     # The five ODEs we are trying to solve (equation 2)
     dydr = np.zeros(5)
     dydr[0] = tools.drho_dr_scaled(rho, T, r, L, M, lam_val)
     dydr[1] = tools.dT_dr_scaled(rho, T, r, L, M, lam_val)
     dydr[2] = tools.dM_dr(rho, r)
-    dydr[3] = tools.dL_dr(rho , T, r)
+    dydr[3] = tools.dL_dr(rho, T, r)
     dydr[4] = tools.dtau_dr(rho, T)
 
     return dydr
