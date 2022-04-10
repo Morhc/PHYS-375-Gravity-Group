@@ -18,8 +18,6 @@ def HR_diag(data, savepath=""):
     OUTPUTS:
         Plot of a H-R diagram.
     """
-    Lscaled = data.L/s.Lsun
-
     fig, ax = plt.subplots(figsize=(7,10))
 
     ax.set_xlim(800, 5e4)
@@ -39,7 +37,12 @@ def HR_diag(data, savepath=""):
     ax_t.tick_params(which='major', length=5)
     ax_t.tick_params(which='minor', length=3)
 
-    ax.scatter(data.Tsurf, Lscaled, color='black', s=5)
+    for xx in data:
+        fff, lam = xx
+
+        Lscaled = fff.L/s.Lsun * 1e-7
+
+        ax.plot(fff.Tsurf, Lscaled, label=rf'$\lambda$ = {lam}')
 
     #from p. 342 in Ryden
     spectral_type = ['O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T']
@@ -53,6 +56,7 @@ def HR_diag(data, savepath=""):
     ax.set_ylabel(r'$L$/$L_\odot$', rotation=0)
     ax.set_yticks([0.01, 0.1, 1, 10, 100], ['0.01', '0.1', '1', '10', '100'])
 
+    lgd = plt.legend()
 
     if savepath != "":
         plt.savefig(savepath)
@@ -70,16 +74,21 @@ def LM_diag(data, savepath=""):
         Plot of L/Lsun as a function of M/Msun.
     """
 
-    Lscaled = data.L/s.Lsun
-    Mscaled = data.M/s.Msun
 
     fig, ax = plt.subplots(figsize=(7,10))
-    ax.set_facecolor('black')
 
-    ax.scatter(Mscaled, Lscaled, color='gold', s=5)
+    for xx in data:
+        fff, lam = xx
+
+        Lscaled = fff.L/s.Lsun * 1e-7
+        Mscaled = fff.M/s.Msun / 1000
+
+        ax.plot(Mscaled, Lscaled, label=rf'$\lambda$ = {lam}')
 
     ax.set_xlabel(r'$M$/$M_\odot$')
     ax.set_ylabel(r'$L$/$L_\odot$')
+
+    plt.legend()
 
     if savepath != "":
         plt.savefig(savepath)
@@ -97,16 +106,19 @@ def RM_diag(data, savepath=""):
         Plot of R/Rsun as a function of M/Msun.
     """
 
-    Rscaled = data.R/s.Rsun
-    Mscaled = data.M/s.Msun
-
     fig, ax = plt.subplots(figsize=(7,10))
-    ax.set_facecolor('black')
 
-    ax.scatter(Mscaled, Rscaled, color='gold', s=5)
+    for xx in data:
+        fff, lam = xx
+        Rscaled = fff.R/s.Rsun / 100
+        Mscaled = fff.M/s.Msun / 1000
+        ax.plot(Mscaled, Rscaled, label=rf'$\lambda$ = {lam}')
 
     ax.set_xlabel(r'$M$/$M_\odot$')
     ax.set_ylabel(r'$R$/$R_\odot$')
+
+    plt.legend()
+
 
     if savepath != "":
         plt.savefig(savepath)
@@ -119,19 +131,24 @@ def RM_diag(data, savepath=""):
 
 if __name__ == '__main__':
 
-    #test dataset
+    both = []
+    for lam in [-100, -10, 0, 500]:
+        data = pd.read_csv(os.path.join(s.data_folder, f'stars_lam_{lam}', 'generated_stars.csv'), header=0)[:50]
+        both.append((data, lam))
 
-    M = 5*np.random.rand(100)*s.Msun
-    L = 400*np.random.rand(100)*s.Lsun
-    R = 8*np.random.rand(100)*s.Rsun
-    T = np.power(L/(4*np.pi*s.sb*np.power(R, 2)), 1/4)
+        #hr_path = os.path.join(s.plots_folder, f'HR_diag_lam_{lam}')
+        #lm_path = os.path.join(s.plots_folder, f'LM_diag_lam_{lam}')
+        #rm_path = os.path.join(s.plots_folder, f'RM_diag_lam_{lam}')
 
-    data = pd.DataFrame(data=zip(M, L, R, T), columns=['M', 'L', 'R', 'Tsurf'])
+        #HR_diag(data, hr_path)
+        #LM_diag(data, lm_path)
+        #RM_diag(data, rm_path)
 
-    savepath = os.path.join(s.plots_folder, 'LM_diag_test.png')
-    savepath2 = os.path.join(s.plots_folder, 'RM_diag_test.png')
-    savepath3 = os.path.join(s.plots_folder, 'HR_diag_test.png')
 
-    LM_diag(data, savepath)
-    RM_diag(data, savepath2)
-    HR_diag(data, savepath3)
+    hr_path = os.path.join(s.plots_folder, 'HR_diag_comp')
+    lm_path = os.path.join(s.plots_folder, 'LM_diag_comp')
+    rm_path = os.path.join(s.plots_folder, 'RM_diag_comp')
+
+    HR_diag(both, hr_path)
+    LM_diag(both, lm_path)
+    RM_diag(both, rm_path)

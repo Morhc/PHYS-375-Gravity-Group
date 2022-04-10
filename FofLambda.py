@@ -4,7 +4,7 @@ import pandas as pd
 from standards import Standards as s
 import tools as tools
 
-lam_val = 0
+lam_val = 500
 
 # Edit dydr to account for gravitational scaling
 def dydr_gscaled(r,y) :
