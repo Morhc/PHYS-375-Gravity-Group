@@ -8,8 +8,7 @@ from generate_star import create_star
 
 def main():
 
-    '''
-    for num, scale in enumerate(range(1, 100+1), start=0):
+    for num, scale in enumerate(range(22, 50+1), start=21):
 
         print(f'Generating star {num}')
 
@@ -21,22 +20,13 @@ def main():
 
         print('Saving the data')
         ### SAVING OUT THE DATA ###
-        summary_file = os.path.join(s.data_folder, 'stars_lam_10', 'generated_stars.csv')
+        summary_file = os.path.join(s.data_folder, 'test', 'generated_stars.csv')
 
         with open(summary_file, 'a+') as f:
             f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star},{num}\n')
 
-        df.to_csv(rf"{os.path.join(s.data_folder, 'stars_lam_10', f'star_{num}.csv')}", index=False)
-    '''
+        df.to_csv(rf"{os.path.join(s.data_folder, 'test', f'star_{num}.csv')}", index=False)
 
-    Tc = 8.23544e6
-    Tc = 7000000
-    df, star_data = create_star(Tc)
-    rho_c, Tc, R_star, M_star, L_star, T_star = star_data
-    summary_file = os.path.join(s.data_folder, 'summary_test.csv')
-    with open(summary_file, 'a+') as f:
-        f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star}\n')
-    df.to_csv(rf"{os.path.join(s.data_folder, 'test_star.csv')}", index=False)
 
 if __name__ == "__main__":
     main()

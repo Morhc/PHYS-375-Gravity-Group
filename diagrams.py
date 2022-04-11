@@ -166,7 +166,6 @@ if __name__ == '__main__':
         #LM_diag(data, lm_path)
         #RM_diag(data, rm_path)
 
-
     hr_path = os.path.join(s.plots_folder, 'HR_diag_comp')
     lm_path = os.path.join(s.plots_folder, 'LM_diag_comp')
     rm_path = os.path.join(s.plots_folder, 'RM_diag_comp')
