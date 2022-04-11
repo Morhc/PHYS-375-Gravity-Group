@@ -30,7 +30,7 @@ class Standards:
     X = 0.73 # need to adjust these values. Ensure that X+Y+Z = 1
     X_CNO = 0.03*X
     Y = 0.25
-    Z = 0.02
+    Z = 1 - X - Y
     mu = (2*X + 0.75*Y + 0.5*Z)**(-1)
 
     #scaling constants

@@ -13,28 +13,10 @@ import FofLambda as grav
 
 np.seterr(all='ignore')
 
-def rk4(x0,y0,xn,n):
-
-    f = 
-
-    # Calculating step size
-    h = (xn-x0)/n
-
-    for i in range(n):
-        k1 = h * (f(x0, y0))
-        k2 = h * (f((x0+h/2), (y0+k1/2)))
-        k3 = h * (f((x0+h/2), (y0+k2/2)))
-        k4 = h * (f((x0+h), (y0+k3)))
-        k = (k1+2*k2+2*k3+k4)/6
-        yn = y0 + k
-        y0 = yn
-        x0 = x0+h
-
-
-def solveODEs(r_init, r_fin, y0, steps):
+def solveODEs(r_init, r_fin, y0):
     '''Function to solve the ODEs (equation 2 in the project description)'''
 
-    r_values = np.linspace(r_init, r_fin, steps)
+    r_values = np.linspace(r_init, r_fin, 10000)
     t_span = (r_init, r_fin)
 
     solutions = int.solve_ivp(grav.dydr_gscaled, t_span, y0, 'RK45', t_eval=r_values) # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
@@ -155,41 +137,88 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
 
     return rhoc_mid
 
+def get_f(rhoc, Tc):
+
+    #the range of radii, in kg/m^3
+    r0, r_max = 1e-6, 50*s.Rsun
+
+    #Step 1: Select rhoc and Tc
+    #Step 2: Integrate equations (2) to obtain Rstar, L(Rstar), T(Rstar)
+    M0 = 4*np.pi*(r0**3)*rhoc/3
+    L0 = 4*np.pi*(r0**3)*rhoc*tools.epsilon(rhoc, Tc)
+    tau0 = tools.kappa(rhoc, Tc)*rhoc*r0
+
+    initial_conditions = np.array([rhoc, Tc, M0, L0, tau0])
+
+    r, rho, T, M, L, tau = solveODEs(r0, r_max, initial_conditions)
+
+    #Equation 4 in the project description says we should find when this is zero to define the surface
+    i = np.argmin(tau[-1] - tau - 2/3)
+
+    #Get values at the surface
+    Rstar, Tstar, Mstar, Lstar = r[i], T[i], M[i], L[i]
+
+    #Following Equation 17 in the project description
+    f_rhoc = tools.luminosity_check(Rstar, Lstar, Tstar)
+
+    return f_rhoc, r, rho, T, M, L, tau, i
+
+def new_bisection(Tc):
+    """A bisection method to find the central density to use to solve Equations 2.
+    Source: https://personal.math.ubc.ca/~pwalls/math-python/roots-optimization/bisection/
+    INPUTS:
+        Tc - The central temperature.
+    OUTPUTS:
+        mid_rhoc - The central density solved for.
+    """
+
+    #starting range of densities, in kg/m^3
+    min_rhoc, max_rhoc = 300, 500000
+
+    fmid, mid_rhoc = 10, 1000000000 #arbitrary starting point / irrelevant
+    tolerance = 1e-3 #tolerance for the bisection method
+
+    count = 0 #for the sake of processing time
+    while (abs(fmid) > tolerance) and (count < 200):
+
+        mid_rhoc = (max_rhoc + min_rhoc)/2
+
+        fmin = get_f(min_rhoc, Tc)[0]
+        fmid = get_f(mid_rhoc, Tc)[0]
+        fmax = get_f(max_rhoc, Tc)[0]
+
+        #print(count, mid_rhoc/1000, fmin, fmid, fmax)
+
+        if fmin*fmax > 0:
+            print('No roots are possible, function does not cross zero.')
+            mid_rhoc = None
+            break
+
+        if abs(fmid) < tolerance: break #close enough to zero, we got it
+
+        #if the root is in-between the minimum and the mid-point
+        if fmin*fmid < 0:
+            max_rhoc = mid_rhoc
+
+        #if the root is in-between the mid-point and the maximum
+        elif fmid*fmax < 0:
+            min_rhoc = mid_rhoc
+
+        count +=1
+
+
+    return mid_rhoc
+
 def create_star(Tc):
     """Creates a star given some input central temperature.
     """
-    #set the initial conditions
-    r_initial = 1
-    r_final = 1e11
-    steps = 100000 #number of steps
 
-    # intializing an array that contains the intial values for density, temperature, mass, luminosity and tau
-    y = np.array([0, Tc, 0, 0, 0])
+    rhoc = new_bisection(Tc)
+    _, r, rho, T, M, L, tau, i = get_f(rhoc, Tc)
 
-    rhoc_min = 300 # min value for rho_c in kg/m^3
-    rhoc_max = 500000 # max value for rho_c in kg/m^3
+    R_star, rho_c, M_star, L_star, T_star = r[i], rho[0], M[i], L[i], T[i]
 
-    #our solution to f(rho_c)
-    rho_c = bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps)
-
-    # re-defining the previos 'y' array to now contain the newly determine rho_c value
-    y_new =  np.array([rho_c, Tc, 0, 0, 0])
-
-    # Solving the ODEs
-    final = solveODEs(r_initial, r_final, y_new, steps)
-
-    # Storing the solutions to the ODEs appropriately
-    r, rho_r, T_r, M_r, L_r, tau_r = final
-
-    i = np.argmin(tau_r[-1] - tau_r - 2/3)
-
-
-    #Defining all the star extrinsic values
-    R_star = r[i]
-    rho_star = rho_r[i]
-    M_star = M_r[i]
-    L_star = L_r[i]
-    T_star = (L_star/(4*np.pi*s.sb*(R_star**2)))**(1/4)
+    r, rho_r, T_r, M_r, L_r = r[:i], rho[:i], T[:i], M[:i], L[:i]
 
     #Calculate the pressures
     P_r = tools.pressure(rho_r, T_r)
@@ -246,3 +275,29 @@ def create_star(Tc):
     df['kappaHm'] = df['kappaHm'] * 10
 
     return df, (rho_c/1000, Tc, R_star*100, M_star*1000, L_star/1e-7, T_star)
+
+
+    """
+    #set the initial conditions
+    r_initial = 1
+    r_final = 1e11
+    steps = 100000 #number of steps
+
+    # intializing an array that contains the intial values for density, temperature, mass, luminosity and tau
+    y = np.array([0, Tc, 0, 0, 0])
+
+    #our solution to f(rho_c)
+    rho_c = bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps)
+
+    # re-defining the previos 'y' array to now contain the newly determine rho_c value
+    y_new =  np.array([rho_c, Tc, 0, 0, 0])
+
+    # Solving the ODEs
+    final = solveODEs(r_initial, r_final, y_new, steps)
+
+    # Storing the solutions to the ODEs appropriately
+    r, rho_r, T_r, M_r, L_r, tau_r = final
+
+    i = np.argmin(tau_r[-1] - tau_r - 2/3)
+
+    """

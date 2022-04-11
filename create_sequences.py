@@ -30,6 +30,7 @@ def main():
     '''
 
     Tc = 8.23544e6
+    Tc = 7000000
     df, star_data = create_star(Tc)
     rho_c, Tc, R_star, M_star, L_star, T_star = star_data
     summary_file = os.path.join(s.data_folder, 'summary_test.csv')
