@@ -13,6 +13,23 @@ import FofLambda as grav
 
 np.seterr(all='ignore')
 
+def rk4(x0,y0,xn,n):
+
+    f = 
+
+    # Calculating step size
+    h = (xn-x0)/n
+
+    for i in range(n):
+        k1 = h * (f(x0, y0))
+        k2 = h * (f((x0+h/2), (y0+k1/2)))
+        k3 = h * (f((x0+h/2), (y0+k2/2)))
+        k4 = h * (f((x0+h), (y0+k3)))
+        k = (k1+2*k2+2*k3+k4)/6
+        yn = y0 + k
+        y0 = yn
+        x0 = x0+h
+
 
 def solveODEs(r_init, r_fin, y0, steps):
     '''Function to solve the ODEs (equation 2 in the project description)'''
@@ -143,14 +160,15 @@ def create_star(Tc):
     """
     #set the initial conditions
     r_initial = 1
-    r_final = 1e9
-    steps = 10000 #number of steps
+    r_final = 1e11
+    steps = 100000 #number of steps
 
     # intializing an array that contains the intial values for density, temperature, mass, luminosity and tau
     y = np.array([0, Tc, 0, 0, 0])
 
-    rhoc_min = 300 # min value for rho_c in g/cm^3
-    rhoc_max = 500000 # max value for rho_c in g/cm^3
+    rhoc_min = 300 # min value for rho_c in kg/m^3
+    rhoc_max = 500000 # max value for rho_c in kg/m^3
+
     #our solution to f(rho_c)
     rho_c = bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps)
 

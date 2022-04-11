@@ -205,67 +205,151 @@ def dP_drho(rho, T):
     return dP_drho
 
 def dlnP_dlnT(P, T):
-    '''This function will calculate the partial derivative of d(ln(P))/d(ln(T))'''
-    return np.log(P)/np.log(T)
+    """Calculates the derivative of lnP wrt lnT. NOTE: WRONG
+    INPUTs:
+        P - The pressure at some radius.
+        T - The temperature at some radius.
+    OUTPUTS:
+        dlnP_dlnT - The derivative.
+    """
 
+    dlnP_dlnT = np.log(P)/np.log(T)
+
+    return dlnP_dlnT
 
 def dtau_dr(rho, T):
-    '''This function will calculate the optical depth DE'''
-    '''Calls the kappa function for the opacity'''
+    """Calculates the opatical depth via Equation 2.
+    INPUTS:
+        rho - The density at some radius.
+        T - The temperature at some radius.
+    OUTPUTS:
+        tau - The optical depth.
+    """
 
-    return kappa(rho, T)*rho
+    tau = kappa(rho, T)*rho
 
-def dL_dr_PP(rho,T,r):
-    '''This function will calcualte dL/dr using only e_pp'''
-    rho_5 = rho/1e5
-    T_6 = T/1e6
+    return tau
 
-    e_pp = (1.07e-7)*rho_5*np.power(s.X,2)*np.power(T_6,4) # output vale is units of W/kg
+def dL_dr_PP(rho, T, r):
+    """Calculates the luminosity via Equation 2, but replaces epsilon with the equation for eps_pp.
+    INPUTS:
+        rho - The density at some radius.
+        T - The temperature at some radius.
+        r - The radius.
+    OUTPUTS:
+        dL_dr_pp - The luminosity from the PP chain at some radius, in W/m.
+    """
 
-    return ( 4*np.pi*(r**2)*rho*e_pp )
+    rho5, T6 = rho/1e5, T/1e6
 
-def dL_dr_CNO(rho,T,r):
-    '''This function will calcualte dL/dr using only e_cno'''
-    rho_5 = rho/1e5
-    T_6 = T/1e6
+    epp = (1.07e-7)*rho5*(s.X**2)*np.power(T6, 4) #PP-chain, in W/kg
 
-    e_cno = (8.24e-26)*rho_5*s.X*s.X_CNO*( (T_6)**(19.9) ) # output vale is units of W/kg
+    dL_dr_pp = 4*np.pi*np.power(r, 2)*rho*epp
 
-    return ( 4*np.pi*(r**2)*rho*e_cno )
+    return dL_dr_pp
+
+def dL_dr_CNO(rho, T, r):
+    """Calculates the luminosity via Equation 2, but replaces epsilon with the equation for eps_cno.
+    INPUTS:
+        rho - The density at some radius.
+        T - The temperature at some radius.
+        r - The radius.
+    OUTPUTS:
+        dL_dr_cno - The luminosity from the CNO cycle at some radius, in W/m.
+    """
+
+    rho5, T6 = rho/1e5, T/1e6
+
+    ecno = (8.24e-26)*rho5*s.X*s.X_CNO*np.power(T6, 19.9) #CNO cycle, in W/kg
+
+    dL_dr_cno = 4*np.pi*np.power(r, 2)*rho*ecno
+
+
+    return dL_dr_cno
 
 def dL_dr(rho, T, r):
-    '''This function will calcualte the luminosity DE'''
+    """Calculates the luminosity via Equation 2.
+    INPUTS:
+        rho - The density at some radius.
+        T - The temperature at some radius.
+        r - The radius.
+    OUTPUTS:
+        dL_dr - The luminosity at some radius, in W/m.
+    """
 
-    return 4*np.pi*(r**2)*rho*epsilon(rho, T)
+    dL_dr = 4*np.pi*(r**2)*rho*epsilon(rho, T)
+
+    return dL_dr
 
 def dM_dr(rho, r):
-    '''This function will calculate the mass DE'''
-    return 4*np.pi*(r**2)*rho
+    """Calculates the mass via Equation 2.
+    INPUTS:
+        rho - The density at some radius.
+        r - The radius.
+    OUTPUTS:
+        dM_dr - The mass at some radius, in kg/m.
+    """
+
+    dM_dr = 4*np.pi*np.power(r, 2)*rho
+
+    return dM_dr
 
 def dT_dr(rho, T, r, L, M):
-    '''This function will calcualte the termperature DE'''
+    """Calculates the temperature via Equation 2.
+    INPUTS:
+        rho - The density at some radius.
+        T - The temperature at some radius.
+        r - The radius.
+        L - The luminosity at some radius.
+        M - The mass at some radius.
+    OUTPUTS:
+        dT_dr - The temperature at some radius, in K/m.
 
-    A = 3*kappa(rho, T)*rho*L/(16*np.pi*(s.c*s.a)*(T**3)*(r**2))
-    B = (1 - 1/s.gamma)*(T/pressure(rho,T))*(s.G*M*rho/(r**2))
+    DEFUNCT.
+    """
 
-    min_value = -np.minimum(A,B)
+    A = 3*kappa(rho, T)*rho*L/(16*np.pi*s.a*s.c*np.power(T, 3)*np.power(r, 2))
+    B = (1 - 1/s.gamma)*T*s.G*M*rho/(pressure(rho, T)*np.power(r, 2))
 
-    return min_value
+    dT_dr = -np.minimum(A, B)
+
+    return dT_dr
 
 def drho_dr(rho, T, r, L, M):
-    '''This fucntion will calcualte the density DE'''
+    """Calculates the density via Equation 2.
+    INPUTS:
+        rho - The density at some radius.
+        T - The temperature at some radius.
+        r - The radius.
+        L - The luminosity at some radius.
+        M - The mass at some radius.
+    OUTPUTS:
+        drho_dr - The density at some radius, in kg/m^4.
 
-    A = ( (s.G*M*rho) / (r**2) )
+    DEFUNCT.
+    """
+
+    A = s.G*M*rho/np.power(r, 2)
     B = dP_dT(rho, T)*dT_dr(rho, T, r, L, M)
     C = dP_drho(rho, T)
 
-    return -(A+B)/C
+    drho_dr = -(A+B)/C
+
+    return drho_dr
 
 def luminosity_check(R, L, T):
-    '''This function will check L(R_star) with the theoretical luminosity
-    See equation 17 in the project description
-    '''
-    theoretical = 4*np.pi*s.sb*(R**2)*(T**4)
+    """This function is used as a check to see how close the ODE solved luminosity is to the
+    theoretical value, taken from Equation 17 in the project description.
+    INPUTS:
+        R - The radius of the star.
+        L - The luminosity of the star.
+        T - The surface temperature of the star.
+
+    OUTPUTS:
+        f - If this value is 0 then we have a perfect match.
+    """
+
+    theoretical =  4*np.pi*s.sb*(R**2)*(T**4)
     f = (L-theoretical) / np.sqrt(L*theoretical)
 
     return f
@@ -275,24 +359,41 @@ def luminosity_check(R, L, T):
 # Modification of Gravity Section:
 # ---------------------------------
 
-def dT_dr_scaled(rho, T, r, L, M, lam): # Built upon dT_dr function
-    '''This function will calculate the termperature DE with scaled lambda factor for gravity
-        Extrapolation of dT_dr function
-    '''
+def dT_dr_scaled(rho, T, r, L, M, lam):
+    """Calculates the temperature via Equation 2, with a gravitational modification according to Equation 19.
+    INPUTS:
+        rho - The density at some radius.
+        T - The temperature at some radius.
+        r - The radius.
+        L - The luminosity at some radius.
+        M - The mass at some radius.
+    OUTPUTS:
+        dT_dr - The temperature at some radius, in K/m.
+    """
 
-    A = 3*kappa(rho, T)*rho*L/(16*np.pi*(s.sb*4)*(T**3)*(r**2))
-    B = (1-1/s.gamma)*(T/pressure(rho,T))*(( ((s.G * M) / (r ** 2)) + ( (s.G * M * lam) / (r ** 3) ) )*rho) # y is replaced with Mass
-    min_value = -np.minimum(A,B)
+    A = 3*kappa(rho, T)*rho*L/(16*np.pi*s.a*s.c*np.power(T, 3)*np.power(r, 2))
+    B = (1 - 1/s.gamma)*T*s.G*M*rho*(1+lam/r)/(pressure(rho, T)*np.power(r, 2))
 
-    return (min_value)
+    dT_dr = -np.minimum(A, B)
+
+    return dT_dr
 
 def drho_dr_scaled(rho, T, r, L, M, lam):
-    '''This fucntion will calculate the density DE with scaled lambda factor for gravity
-        Extrapolation of drho_dr function
-    '''
+    """Calculates the density via Equation 2, with a gravitational modification according to Equation 19.
+    INPUTS:
+        rho - The density at some radius.
+        T - The temperature at some radius.
+        r - The radius.
+        L - The luminosity at some radius.
+        M - The mass at some radius.
+    OUTPUTS:
+        drho_dr - The density at some radius, in kg/m^4.
+    """
 
-    A = (( ((s.G * M) / (r ** 2)) + ( (s.G * M * lam) / (r ** 3) ) )*rho)
-    B = (dP_dT(rho, T) )*(dT_dr_scaled(rho, T, r, L, M, lam))
+    A = s.G*M*rho*(1+lam/r)/np.power(r, 2)
+    B = dP_dT(rho, T)*dT_dr(rho, T, r, L, M)
     C = dP_drho(rho, T)
 
-    return ( (-(A+B))/C )
+    drho_dr = -(A+B)/C
+
+    return drho_dr
