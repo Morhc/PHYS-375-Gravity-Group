@@ -3,6 +3,8 @@
 import os
 import pandas as pd
 
+import time
+
 from standards import Standards as s
 from generate_star import create_star
 
@@ -10,6 +12,7 @@ def main():
 
     '''
     for num, Tc in enumerate(np.linspace(1e6, 50e6, 25), start=0):
+        start = time.time()
 
         print(f'Generating star {num}')
 
@@ -17,7 +20,7 @@ def main():
 
         rho_c, Tc, R_star, M_star, L_star, T_star = star_data
 
-        print('Saving the data')
+        print(f'Saving the data. Took {time.time()-start} seconds.')
         ### SAVING OUT THE DATA ###
         summary_file = os.path.join(s.data_folder, 'test', 'generated_stars.csv')
 

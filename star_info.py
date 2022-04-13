@@ -123,7 +123,7 @@ def plot_star(data, info = None, savepath=""):
 
 
     #the convective region is where dlogP/dlogT = 1 - 1/gamma = 2.5
-    convective = data[data['dlogP/dlogT'] == 2.5].index.values
+    convective = data[np.round(data['dlogP/dlogT'], 1) == 2.5].index.values
     if len(convective) > 0:
         vals = [[convective[0]]]
         c = 0
@@ -145,7 +145,7 @@ def plot_star(data, info = None, savepath=""):
 
         ax.set_xlim(0,1)
 
-
+        
         ax.xaxis.set_major_locator(tk.MultipleLocator(0.2))
         ax.xaxis.set_minor_locator(tk.MultipleLocator(0.05))
 
@@ -161,7 +161,7 @@ def plot_star(data, info = None, savepath=""):
             ax.tick_params(labelbottom = False)
 
         ax.yaxis.set_minor_locator(tk.AutoMinorLocator())
-        
+
 
     if savepath != "":
         plt.savefig(savepath)

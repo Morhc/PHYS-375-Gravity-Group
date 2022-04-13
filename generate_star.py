@@ -153,7 +153,8 @@ def get_f(rhoc, Tc):
     r, rho, T, M, L, tau = solveODEs(r0, r_max, initial_conditions)
 
     #Equation 4 in the project description says we should find when this is zero to define the surface
-    i = np.argmin(tau[-1] - tau - 2/3)
+    #If there was no np.abs then it would gravitate towards the final index
+    i = np.argmin(np.abs(tau[-1] - tau - 2/3))
 
     #Get values at the surface
     Rstar, Tstar, Mstar, Lstar = r[i], T[i], M[i], L[i]
@@ -176,8 +177,8 @@ def new_bisection(Tc):
     #starting range of densities, in kg/m^3
     min_rhoc, max_rhoc = 300, 500000
 
-    fmid, mid_rhoc = 10, 1000000000 #arbitrary starting point / irrelevant
-    tolerance = 1e-3 #tolerance for the bisection method
+    fmid, mid_rhoc = 10, 10 #arbitrary starting point / irrelevant
+    tolerance = 1e-5 #tolerance for the bisection method
 
     count = 0 #for the sake of processing time
     while (abs(fmid) > tolerance) and (count < 200):
@@ -190,7 +191,9 @@ def new_bisection(Tc):
 
         print(fmin, fmid, fmax, mid_rhoc)
 
-        #print(count, mid_rhoc/1000, fmin, fmid, fmax)
+        #nothing will change if this happens
+        if fmin == fmid or fmid == fmax:
+            break
 
         if fmin*fmax > 0:
             print('No roots are possible, function does not cross zero.')
@@ -217,10 +220,12 @@ def create_star(Tc):
     """
 
     rhoc = new_bisection(Tc)
+    print(rhoc)
     _, r, rho, T, M, L, tau, i = get_f(rhoc, Tc)
-
+    print(rho[0])
     R_star, rho_c, M_star, L_star, T_star = r[i], rho[0], M[i], L[i], T[i]
 
+    #get the values up to the radius
     r, rho_r, T_r, M_r, L_r = r[:i], rho[:i], T[:i], M[:i], L[:i]
 
     #Calculate the pressures

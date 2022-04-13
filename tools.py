@@ -247,7 +247,12 @@ def dlnP_dlnT(P, T):
         dlnP_dlnT - The derivative.
     """
 
-    dlnP_dlnT = np.log(P)/np.log(T)
+    #Pressure and temperature go from high to low
+    #When we subtract like this, it's the same as dT = T[0] - T[1]
+    dlnP = np.log(P)[1:] - np.log(P)[:-1]
+    dlnT = np.log(T)[1:] - np.log(T)[:-1]
+
+    dlnP_dlnT = dlnP/dlnT
 
     return dlnP_dlnT
 
