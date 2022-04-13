@@ -52,12 +52,12 @@ def RKF45Method_adaptive(f,r,y,h):
        - 'y5' - 5th order solutions to ODE
        - 'hnew' - the new adpted stepsize
     '''
-    K1 = h*f(r,y)
-    K2 = h*f( r + (1/4)*h, y + (1/4)*K1 )
-    K3 = h*f( r + (3/8)*h, y + (3/32)*K1 + (9/32)*K2 )
-    K4 = h*f( r + (12/13)*h, y + (1932/2197)*K1 + (-7200/2197)*K2 + (7296/2197)*K3 )
-    K5 = h*f( r + (1)*h, y + (439/216)*K1 + (-8)*K2 + (3680/513)*K3 + (-845/4104)*K4 )
-    K6 = h*f( r + (1/2)*h, y + (-8/27)*K1 + (2)*K2 + (-3544/2565)*K3 + (1859/4104)*K4 + (-11/40)*K5 )
+    K1 = h*f(r, y)
+    K2 = h*f(r + (1/4)*h, y + (1/4)*K1 )
+    K3 = h*f(r + (3/8)*h, y + (3/32)*K1 + (9/32)*K2 )
+    K4 = h*f(r + (12/13)*h, y + (1932/2197)*K1 + (-7200/2197)*K2 + (7296/2197)*K3 )
+    K5 = h*f(r + (1)*h, y + (439/216)*K1 + (-8)*K2 + (3680/513)*K3 + (-845/4104)*K4 )
+    K6 = h*f(r + (1/2)*h, y + (-8/27)*K1 + (2)*K2 + (-3544/2565)*K3 + (1859/4104)*K4 + (-11/40)*K5 )
 
     # The truncation error (TE)
     TE = abs( (1/360)*K1 + (0)*K2 + (-128/4275)*K3 + (-2197/75240)*K4 + (1/50)*K5 + (2/55)*K6 )
@@ -70,7 +70,7 @@ def RKF45Method_adaptive(f,r,y,h):
     # Calcuating the new step-sizes
     hnew = min((0.9)*h*( (error/TE)**(1/5) ))
 
-    return(y5,hnew)
+    return (y5, hnew)
 
 def epsilon(rho, T):
     """Calculates epsilon using Equations 8 and 9 from the project description.

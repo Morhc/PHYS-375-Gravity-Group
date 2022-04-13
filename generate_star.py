@@ -140,18 +140,30 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
 def get_f(rhoc, Tc):
 
     #the range of radii, in kg/m^3
+    steps = 10000
     r0, r_max = 1e-6, 50*s.Rsun
+    rs = np.linspace(r0, r_max, steps)
 
     #Step 1: Select rhoc and Tc
     #Step 2: Integrate equations (2) to obtain Rstar, L(Rstar), T(Rstar)
-    M0 = 4*np.pi*(r0**3)*rhoc/3
+    M = 4*np.pi*(r0**3)*rhoc/3
     L0 = 4*np.pi*(r0**3)*rhoc*tools.epsilon(rhoc, Tc)
     tau0 = tools.kappa(rhoc, Tc)*rhoc*r0
 
-    initial_conditions = np.array([rhoc, Tc, M0, L0, tau0])
+    initial_conditions = np.array([rhoc, Tc, M, L0, tau0])
 
-    r, rho, T, M, L, tau = solveODEs(r0, r_max, initial_conditions)
+    i = 0
+    deltau = 1
+    tolerance = 1e-3
+    #r, rho, T, M, L, tau = solveODEs(r0, r_max, initial_conditions)
+    while (deltau > tolerance) and (M < 1e3 * s.Msun):
 
+        initial_conditions, steps = tools.RKF45Method_adaptive(grav.dydr_gscaled, rs[i], initial_conditions, steps)
+
+        print(initial_conditions, steps)
+        quit()
+
+        i+=1
     #Equation 4 in the project description says we should find when this is zero to define the surface
     #If there was no np.abs then it would gravitate towards the final index
     i = np.argmin(np.abs(tau[-1] - tau - 2/3))
