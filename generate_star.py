@@ -220,9 +220,7 @@ def create_star(Tc):
     """
 
     rhoc = new_bisection(Tc)
-    print(rhoc)
     _, r, rho, T, M, L, tau, i = get_f(rhoc, Tc)
-    print(rho[0])
     R_star, rho_c, M_star, L_star, T_star = r[i], rho[0], M[i], L[i], T[i]
 
     #get the values up to the radius
