@@ -189,7 +189,7 @@ def new_bisection(Tc):
         fmid = get_f(mid_rhoc, Tc)[0]
         fmax = get_f(max_rhoc, Tc)[0]
 
-        print(fmin, fmid, fmax, mid_rhoc)
+        #print(fmin, fmid, fmax, mid_rhoc)
 
         #nothing will change if this happens
         if fmin == fmid or fmid == fmax:

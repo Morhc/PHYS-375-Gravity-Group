@@ -165,7 +165,9 @@ if __name__ == '__main__':
         #HR_diag(data, hr_path)
         #LM_diag(data, lm_path)
         #RM_diag(data, rm_path)
+    data = pd.read_csv(os.path.join(s.data_folder, 'test', 'generated_stars.csv'), header=0)[:50]
 
+    both = [(data,0)]
     hr_path = os.path.join(s.plots_folder, 'HR_diag_comp')
     lm_path = os.path.join(s.plots_folder, 'LM_diag_comp')
     rm_path = os.path.join(s.plots_folder, 'RM_diag_comp')

@@ -2,6 +2,7 @@
 
 import os
 import pandas as pd
+import numpy as np
 
 import time
 
@@ -10,11 +11,10 @@ from generate_star import create_star
 
 def main():
 
-    '''
-    for num, Tc in enumerate(np.linspace(1e6, 50e6, 25), start=0):
+    for num, Tc in enumerate(np.linspace(3e6, 35e6, 25), start=0):
         start = time.time()
 
-        print(f'Generating star {num}')
+        print(f'Generating star {num}. Temperature of {Tc}.')
 
         df, star_data = create_star(Tc)
 
@@ -30,8 +30,8 @@ def main():
         df.to_csv(rf"{os.path.join(s.data_folder, 'test', f'star_{num}.csv')}", index=False)
 
         del df
-    '''
 
+    '''
     Tc = 8235440
     df, star_data = create_star(Tc)
 
@@ -45,6 +45,7 @@ def main():
     df.to_csv(rf"{os.path.join(s.data_folder, 'test_star.csv')}", index=False)
 
     del df
+    '''
 
 if __name__ == "__main__":
     main()
