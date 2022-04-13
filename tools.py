@@ -65,12 +65,12 @@ def RKF45Method_adaptive(f,r,y,h):
     # the error estimate of the RKF45 method
     y5 = y + (25/216)*K1 + (1408/2565)*K3 + (2197/4101)*K4 - (1/5)*K5
     y4 = y + (16/135)*K1 + (6656/12825)*K3 + (28561/56430)*K4 - (9/50)*K5 + (2/55)*K6
-    error = abs( y5 - y4)
+    error = abs(y5 - y4)
 
     # Calcuating the new step-sizes
     hnew = min((0.9)*h*( (error/TE)**(1/5) ))
 
-    return (y5, hnew)
+    return (y5)
 
 def epsilon(rho, T):
     """Calculates epsilon using Equations 8 and 9 from the project description.
@@ -395,7 +395,8 @@ def luminosity_check(R, L, T):
 
 def del_tau(rho,T,r,M,L):
     '''This fucntion will calcualte the opacity proxy'''
-    return (kappa(rho,T)*(rho**2) / abs(drho_dr(rho, T, r, M,L)))
+    #need to switch to scaled version
+    return (kappa(rho,T)*(rho**2) / abs(drho_dr(rho, T, r, L, M)))
 
 # ---------------------------------
 # Modification of Gravity Section:

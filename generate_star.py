@@ -140,9 +140,8 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
 def get_f(rhoc, Tc):
 
     #the range of radii, in kg/m^3
-    steps = 10000
     r0, r_max = 1e-6, 50*s.Rsun
-    rs = np.linspace(r0, r_max, steps)
+    rs = np.linspace(r0, r_max, 10000)
 
     #Step 1: Select rhoc and Tc
     #Step 2: Integrate equations (2) to obtain Rstar, L(Rstar), T(Rstar)
@@ -150,7 +149,7 @@ def get_f(rhoc, Tc):
     L0 = 4*np.pi*(r0**3)*rhoc*tools.epsilon(rhoc, Tc)
     tau0 = tools.kappa(rhoc, Tc)*rhoc*r0
 
-    initial_conditions = np.array([rhoc, Tc, M, L0, tau0])
+    ic = np.array([rhoc, Tc, M, L0, tau0])
 
     i = 0
     deltau = 1
@@ -158,10 +157,13 @@ def get_f(rhoc, Tc):
     #r, rho, T, M, L, tau = solveODEs(r0, r_max, initial_conditions)
     while (deltau > tolerance) and (M < 1e3 * s.Msun):
 
-        initial_conditions, steps = tools.RKF45Method_adaptive(grav.dydr_gscaled, rs[i], initial_conditions, steps)
+        ic = tools.RKF45Method_adaptive(grav.dydr_gscaled, rs[i], ic, 1000)
+        rho, T, M, L, tau = ic
+        deltau = tools.del_tau(rho,T,rs[i],M,L)
 
-        print(initial_conditions, steps)
-        quit()
+        if i%1000 == 0:
+            print(deltau)
+            print(ic)
 
         i+=1
     #Equation 4 in the project description says we should find when this is zero to define the surface
