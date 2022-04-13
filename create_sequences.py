@@ -8,11 +8,10 @@ from generate_star import create_star
 
 def main():
 
-    for num, scale in enumerate(range(1, 50+1), start=0):
+    '''
+    for num, Tc in enumerate(np.linspace(1e6, 50e6, 25), start=0):
 
         print(f'Generating star {num}')
-
-        Tc = scale*1e6  # (core temperature in K) we will choose Tc to be the MS paramter
 
         df, star_data = create_star(Tc)
 
@@ -27,6 +26,22 @@ def main():
 
         df.to_csv(rf"{os.path.join(s.data_folder, 'test', f'star_{num}.csv')}", index=False)
 
+        del df
+    '''
+
+    Tc = 8235440
+    df, star_data = create_star(Tc)
+
+    rho_c, Tc, R_star, M_star, L_star, T_star = star_data
+
+    summary_file = os.path.join(s.data_folder, 'summary_test.csv')
+
+    with open(summary_file, 'a+') as f:
+        f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star}\n')
+
+    df.to_csv(rf"{os.path.join(s.data_folder, 'test_star.csv')}", index=False)
+
+    del df
 
 if __name__ == "__main__":
     main()

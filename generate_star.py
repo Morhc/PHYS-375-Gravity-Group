@@ -159,7 +159,8 @@ def get_f(rhoc, Tc):
     Rstar, Tstar, Mstar, Lstar = r[i], T[i], M[i], L[i]
 
     #Following Equation 17 in the project description
-    f_rhoc = tools.luminosity_check(Rstar, Lstar, Tstar)
+    theoretical = 4*np.pi*s.sb*(Rstar**2)*(Tstar**4)
+    f_rhoc = (Lstar-theoretical) / ((Lstar*theoretical)**(1/2))
 
     return f_rhoc, r, rho, T, M, L, tau, i
 
@@ -186,6 +187,8 @@ def new_bisection(Tc):
         fmin = get_f(min_rhoc, Tc)[0]
         fmid = get_f(mid_rhoc, Tc)[0]
         fmax = get_f(max_rhoc, Tc)[0]
+
+        print(fmin, fmid, fmax, mid_rhoc)
 
         #print(count, mid_rhoc/1000, fmin, fmid, fmax)
 

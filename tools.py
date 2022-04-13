@@ -113,7 +113,7 @@ def kappa_ff(rho, T):
 
     rho3 = rho/1e3
 
-    kappaff = (1e24)*(s.Z+0.0001)*np.power(rho3, 0.7)*np.power(T, -3.5)
+    kappaff = (1e24)*(s.Z+0.0001)*(rho3**0.7)*(T**(-3.5))
 
     return kappaff
 
@@ -128,7 +128,7 @@ def kappa_Hminus(rho, T):
     """
 
     rho3 = rho/1e3
-    kappaHm = (2.5e-32)*(s.Z/0.02)*np.power(rho3, 0.5)*np.power(T, 9)
+    kappaHm = (2.5e-32)*(s.Z/0.02)*(rho3**0.5)*(T**9)
 
     return kappaHm
 
@@ -146,7 +146,7 @@ def kappa(rho, T):
     kappaff = kappa_ff(rho, T)
     kappaHm = kappa_Hminus(rho, T)
 
-    kappa = np.power(1/kappaHm + 1/max(kappaes, kappaff), -1)
+    kappa = 1/(1/kappaHm + 1/max(kappaes, kappaff))
 
     return kappa
 
@@ -158,7 +158,7 @@ def P_degen(rho):
         Pdeg - The degenerate pressure, in Pa.
     """
 
-    Pdeg = np.power(3*(np.pi**2), 2/3)*np.power(s.hbar,2)*np.power(rho/s.mp, 5/3)/(5*s.me)
+    Pdeg = ((3*(np.pi**2))**(2/3))*(s.hbar**2)*((rho/s.mp)**(5/3))/(5*s.me)
 
     return Pdeg
 
@@ -183,7 +183,7 @@ def P_photongas(T):
         Ppho - The photon pressure, in Pa.
     """
 
-    Ppho = s.a*np.power(T, 4)/3
+    Ppho = s.a*(T**4)/3
 
     return Ppho
 
@@ -217,7 +217,7 @@ def dP_dT(rho, T):
         dP_dT - The partial derivative of the pressure wrt temperature, in Pa/K.
     """
 
-    dP_dT = rho*s.k/(s.mu*s.mp) + s.a*np.power(T, 3)*4/3
+    dP_dT = rho*s.k/(s.mu*s.mp) + s.a*(T**3)*4/3
 
     return dP_dT
 
@@ -231,7 +231,7 @@ def dP_drho(rho, T):
         dP_drho - The partial derivative of the pressure wrt rho, in Pa m^3/kg [J/kg].
     """
 
-    A = np.power(3*(np.pi**2), 2/3)*np.power(s.hbar,2)*np.power(rho/s.mp, 2/3)/(3*s.me*s.mp)
+    A = ((3*(np.pi**2))**(2/3))*(s.hbar**2)*((rho/s.mp)**(2/3))/(3*s.me*s.mp)
     B = s.k*T/(s.mu*s.mp)
 
     dP_drho = A + B
@@ -276,9 +276,9 @@ def dL_dr_PP(rho, T, r):
 
     rho5, T6 = rho/1e5, T/1e6
 
-    epp = (1.07e-7)*rho5*(s.X**2)*np.power(T6, 4) #PP-chain, in W/kg
+    epp = (1.07e-7)*rho5*(s.X**2)*(T6**4) #PP-chain, in W/kg
 
-    dL_dr_pp = 4*np.pi*np.power(r, 2)*rho*epp
+    dL_dr_pp = 4*np.pi*(r**2)*rho*epp
 
     return dL_dr_pp
 
@@ -294,9 +294,9 @@ def dL_dr_CNO(rho, T, r):
 
     rho5, T6 = rho/1e5, T/1e6
 
-    ecno = (8.24e-26)*rho5*s.X*s.X_CNO*np.power(T6, 19.9) #CNO cycle, in W/kg
+    ecno = (8.24e-26)*rho5*s.X*s.X_CNO*(T6**19.9) #CNO cycle, in W/kg
 
-    dL_dr_cno = 4*np.pi*np.power(r, 2)*rho*ecno
+    dL_dr_cno = 4*np.pi*(r**2)*rho*ecno
 
 
     return dL_dr_cno
@@ -324,7 +324,7 @@ def dM_dr(rho, r):
         dM_dr - The mass at some radius, in kg/m.
     """
 
-    dM_dr = 4*np.pi*np.power(r, 2)*rho
+    dM_dr = 4*np.pi*(r**2)*rho
 
     return dM_dr
 
@@ -342,10 +342,10 @@ def dT_dr(rho, T, r, L, M):
     DEFUNCT.
     """
 
-    A = 3*kappa(rho, T)*rho*L/(16*np.pi*s.a*s.c*np.power(T, 3)*np.power(r, 2))
-    B = (1 - 1/s.gamma)*T*s.G*M*rho/(pressure(rho, T)*np.power(r, 2))
+    A = 3*kappa(rho, T)*rho*L/(16*np.pi*s.a*s.c*(T**3)*(r**2))
+    B = (1 - 1/s.gamma)*T*s.G*M*rho/(pressure(rho, T)*(r**2))
 
-    dT_dr = -np.minimum(A, B)
+    dT_dr = -min([A, B])
 
     return dT_dr
 
@@ -363,7 +363,7 @@ def drho_dr(rho, T, r, L, M):
     DEFUNCT.
     """
 
-    A = s.G*M*rho/np.power(r, 2)
+    A = s.G*M*rho/(r**2)
     B = dP_dT(rho, T)*dT_dr(rho, T, r, L, M)
     C = dP_drho(rho, T)
 
@@ -408,10 +408,10 @@ def dT_dr_scaled(rho, T, r, L, M, lam):
         dT_dr - The temperature at some radius, in K/m.
     """
 
-    A = 3*kappa(rho, T)*rho*L/(16*np.pi*s.a*s.c*np.power(T, 3)*np.power(r, 2))
-    B = (1 - 1/s.gamma)*T*s.G*M*rho*(1+lam/r)/(pressure(rho, T)*np.power(r, 2))
+    A = 3*kappa(rho, T)*rho*L/(16*np.pi*s.a*s.c*(T**3)*(r**2))
+    B = (1 - 1/s.gamma)*T*s.G*M*rho*(1+lam/r)/(pressure(rho, T)*(r**2))
 
-    dT_dr = -np.minimum(A, B)
+    dT_dr = -min([A, B])
 
     return dT_dr
 
@@ -427,7 +427,7 @@ def drho_dr_scaled(rho, T, r, L, M, lam):
         drho_dr - The density at some radius, in kg/m^4.
     """
 
-    A = s.G*M*rho*(1+lam/r)/np.power(r, 2)
+    A = s.G*M*rho*(1+lam/r)/(r**2)
     B = dP_dT(rho, T)*dT_dr(rho, T, r, L, M)
     C = dP_drho(rho, T)
 
