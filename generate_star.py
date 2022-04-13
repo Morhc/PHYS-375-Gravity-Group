@@ -9,24 +9,37 @@ import tools as tools
 import scipy.integrate as int
 import matplotlib.pyplot as plt
 
-import FofLambda as grav
+#import FofLambda as grav
 
 np.seterr(all='ignore')
 
 def solveODEs(r_init, r_fin, y0):
     '''Function to solve the ODEs (equation 2 in the project description)'''
 
-    r_values = np.linspace(r_init, r_fin, 10000)
+    def stopper(r, condition):
+        """Dictates when the integration stops for the conditions (1) M > 1000*Msun (2) dtau << 1
+        INPUTS:
+            r - The current radius integrated at.
+            condition - The array of conditions at radius r [rho, T, M, L, tau]
+        OUTPUTS:
+            Returns either a positive or negative value to direct the IVP solver to find
+            where dtau << 1 without having M > 1000Msun
+        """
+
+        if condition[2] > 1000*s.Msun: return -1
+
+        #either positive or negative, the threshold is 1e-3 (the <<1)
+        return tools.dtau(r, condition) - 1e-4
+
+    r_values = np.linspace(r_init, r_fin, 100000)
     t_span = (r_init, r_fin)
 
-    solutions = int.solve_ivp(grav.dydr_gscaled, t_span, y0, 'RK45', t_eval=r_values) # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
+    # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
+    solutions = int.solve_ivp(tools.dydr_gscaled, t_span, y0, 'RK45', t_eval=r_values,
+                              dense_output = True, events=stopper, atol=1e-12, rtol=1e-9)
 
-    rho = solutions.y[0]
-    T = solutions.y[1]
-    M = solutions.y[2]
-    L = solutions.y[3]
-    tau = solutions.y[4]
     r = solutions.t # t here mean the 'time points' which in this case are the radius values or rvals
+    rho, T, M, L, tau = solutions.y
 
     return r, rho, T, M, L, tau
 
@@ -140,8 +153,8 @@ def bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps):
 def get_f(rhoc, Tc):
 
     #the range of radii, in kg/m^3
-    r0, r_max = 1e-6, 50*s.Rsun
-    rs = np.linspace(r0, r_max, 10)
+    r0, r_max = 1e-12, 50*s.Rsun
+    #rs = np.linspace(r0, r_max, 100000)
 
     #Step 1: Select rhoc and Tc
     #Step 2: Integrate equations (2) to obtain Rstar, L(Rstar), T(Rstar)
@@ -149,11 +162,15 @@ def get_f(rhoc, Tc):
     L0 = 4*np.pi*(r0**3)*rhoc*tools.epsilon(rhoc, Tc)
     tau0 = tools.kappa(rhoc, Tc)*rhoc*r0
 
+    initial_conditions = np.array([rhoc, Tc, M, L0, tau0])
+    r, rho, T, M, L, tau = solveODEs(r0, r_max, initial_conditions)
+
+    """
     ic = np.array([rhoc, Tc, M, L0, tau0])
 
     info = np.zeros((6,rs.size))
     info[0,:] = rs
-
+    ""
     i = 0
     deltau = 1
     tolerance = 1e-3
@@ -163,17 +180,18 @@ def get_f(rhoc, Tc):
         ic = tools.RKF45Method_adaptive(grav.dydr_gscaled, rs[i], ic, 1000)
         info[1:,i] = ic
 
-
         rho, T, M, L, tau = ic
         deltau = tools.del_tau(rho,T,rs[i],M,L)
 
         i+=1
 
     r, rho, T, M, L, tau = info
+    """
 
     #Equation 4 in the project description says we should find when this is zero to define the surface
     #If there was no np.abs then it would gravitate towards the final index
     i = np.argmin(np.abs(tau[-1] - tau - 2/3))
+
 
     #Get values at the surface
     Rstar, Tstar, Mstar, Lstar = r[i], T[i], M[i], L[i]
@@ -208,7 +226,7 @@ def new_bisection(Tc):
         fmid = get_f(mid_rhoc, Tc)[0]
         fmax = get_f(max_rhoc, Tc)[0]
 
-        #print(fmin, fmid, fmax, mid_rhoc)
+        print(count, mid_rhoc/1000, fmin, fmid, fmax)
 
         #nothing will change if this happens
         if fmin == fmid or fmid == fmax:

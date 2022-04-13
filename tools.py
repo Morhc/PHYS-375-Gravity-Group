@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 from standards import Standards as s
 
+lam = 0
+
 def load_data():
     """Loads in Broderick's data. Warning, the data is in CGMS units, NOT SI units.
     OUTPUTS:
@@ -397,10 +399,12 @@ def luminosity_check(R, L, T):
 
     return f
 
-def del_tau(rho,T,r,M,L):
+def dtau(r, condition):
     '''This fucntion will calcualte the opacity proxy'''
+
+    rho, T, M, L, tau = condition
     #need to switch to scaled version
-    return (kappa(rho,T)*(rho**2) / abs(drho_dr(rho, T, r, L, M)))
+    return (kappa(rho,T)*(rho**2) / abs(drho_dr_scaled(rho, T, r, L, M, lam)))
 
 # ---------------------------------
 # Modification of Gravity Section:
@@ -444,3 +448,27 @@ def drho_dr_scaled(rho, T, r, L, M, lam):
     drho_dr = -(A+B)/C
 
     return drho_dr
+
+def dydr_gscaled(r, y) :
+    """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
+        matrix representing [rho, Temp, Mass, Luminosity, OpticalDepth].
+        Edited to account for gravitational scaling based on lambda.
+    INPUTS:
+        r - The radius per step of the star.
+        y - The values being integrated (rho, T, M, L, tau).
+    OUTPUTS:
+        dydr - The integrated values for rho, T, M, L, tau.
+    """
+
+    rho, T, M, L, tau = y
+
+
+    # The five ODEs we are trying to solve (equation 2)
+    dydr = np.zeros(5)
+    dydr[0] = drho_dr_scaled(rho, T, r, L, M, lam)
+    dydr[1] = dT_dr_scaled(rho, T, r, L, M, lam)
+    dydr[2] = dM_dr(rho, r)
+    dydr[3] = dL_dr(rho, T, r)
+    dydr[4] = dtau_dr(rho, T)
+
+    return dydr
