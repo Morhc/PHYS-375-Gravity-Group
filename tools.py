@@ -43,6 +43,8 @@ def RKF45Method_adaptive(f,r,y,h):
        Source: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta%E2%80%93Fehlberg_method#Implementing_an_RK4(5)_Algorithm
        The coefficietns for 'A' were taken from the table title "COEFFICIENTS FOR RK4(5), FORMULA 2 Table III in Fehlberg"
 
+       SWITCHED TO FORMULA 1 INSTEAD !
+
        Input(s):
        - 'r' - array of radius
        - 'y' - 5 column matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
