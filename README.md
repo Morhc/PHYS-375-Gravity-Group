@@ -13,6 +13,6 @@ This project will require the user to install the following Python libraries:
 **You may run into some issues with LaTeX.**
 
 ## How to Run
-1. Set the lambda value you want in FofLambda
-2. Set the Tc you want in create_sequences.py
+1. Set the lambda value you want in tools.py
+2. Set the Tc range want in create_sequences.py
 3. Run create_sequences.py
