@@ -20,8 +20,8 @@ def HR_diag(data, savepath=""):
     """
     fig, ax = plt.subplots(figsize=(7,10))
 
-    ax.set_xlim(800, 5e4)
-    ax.set_ylim(0.005, 200)
+    #ax.set_xlim(800, 5e4)
+    ax.set_ylim(0.005, 500)
     ax.invert_xaxis()
     ax.set_xscale('log')
     ax.yaxis.set_major_locator(tk.MultipleLocator(50))
@@ -44,7 +44,7 @@ def HR_diag(data, savepath=""):
 
         Lscaled = fff[filter].L/s.Lsun * 1e-7
 
-        ax.scatter(fff[filter].Tsurf, Lscaled, label=rf'$\lambda$ = {lam}')
+        ax.scatter(fff[filter].Tsurf, Lscaled, label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
 
     #from p. 342 in Ryden
     spectral_type = ['O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T']
@@ -87,7 +87,7 @@ def LM_diag(data, savepath=""):
         Lscaled = fff[filter].L/s.Lsun * 1e-7
         Mscaled = fff[filter].M/s.Msun / 1000
 
-        ax.scatter(np.log10(Mscaled), np.log10(Lscaled), label=rf'$\lambda$ = {lam}')
+        ax.scatter(np.log10(Mscaled), np.log10(Lscaled), label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
 
     #from Ryden p. 330
     Mtest = np.linspace(0.1, 80, 100)
@@ -131,7 +131,7 @@ def RM_diag(data, savepath=""):
         Rscaled = fff[filter].R/s.Rsun / 100
         Mscaled = fff[filter].M/s.Msun / 1000
 
-        ax.scatter(np.log10(Mscaled), np.log10(Rscaled), label=rf'$\lambda$ = {lam}')
+        ax.scatter(np.log10(Mscaled), np.log10(Rscaled), label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
 
     #from Ryden p. 330
     Mtest = np.linspace(0.1, 80, 100)
@@ -162,7 +162,7 @@ def RM_diag(data, savepath=""):
 if __name__ == '__main__':
 
     both = []
-    for lam in ['-1e8', '-1e3', '100', '0', '100', '1e3', '1e8']:
+    for lam in ['-1e7', '-1e3', '100', '0', '100', '1e3', '1e7']:
         data = pd.read_csv(os.path.join(s.data_folder, f'stars_lam_{lam}', 'generated_stars.csv'), header=0)[:50]
         both.append((data, lam))
 
@@ -173,9 +173,9 @@ if __name__ == '__main__':
         #HR_diag(data, hr_path)
         #LM_diag(data, lm_path)
         #RM_diag(data, rm_path)
-    data = pd.read_csv(os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv'), header=0)[:50]
+    #data = pd.read_csv(os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv'), header=0)[:50]
 
-    both = [(data,0)]
+    #both = [(data,0)]
     hr_path = os.path.join(s.plots_folder, 'HR_diag_comp')
     lm_path = os.path.join(s.plots_folder, 'LM_diag_comp')
     rm_path = os.path.join(s.plots_folder, 'RM_diag_comp')
