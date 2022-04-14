@@ -27,11 +27,13 @@ class Standards:
 
     # Project specific constants
     gamma = 5/3 # ideal gas
-    X = 0.73 # need to adjust these values. Ensure that X+Y+Z = 1
+    X = 0.7 # need to adjust these values. Ensure that X+Y+Z = 1
     X_CNO = 0.03*X
-    Y = 0.25
+    Y = 0.26584
     Z = 1 - X - Y
-    mu = (2*X + 0.75*Y + 0.5*Z)**(-1)
+    mu = 1/(2*X + 0.75*Y + 0.5*Z)
+
+
 
     #scaling constants
     g_to_kg = 1000

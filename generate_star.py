@@ -5,7 +5,7 @@ import os
 import numpy as np
 import pandas as pd
 from standards import Standards as s
-import tools as tools
+from tools import *
 import scipy.integrate as int
 import matplotlib.pyplot as plt
 
@@ -29,13 +29,13 @@ def solveODEs(r_init, r_fin, y0):
         if condition[2] > 1000*s.Msun: return -1
 
         #either positive or negative, the threshold is 1e-3 (the <<1)
-        return tools.dtau(r, condition) - 1e-4
+        return dtau(r, condition) - 1e-4
 
     r_values = np.linspace(r_init, r_fin, 100000)
     t_span = (r_init, r_fin)
 
     # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
-    solutions = int.solve_ivp(tools.dydr_gscaled, t_span, y0, 'RK45', t_eval=r_values,
+    solutions = int.solve_ivp(dydr_gscaled, t_span, y0, 'RK45', t_eval=r_values,
                               dense_output = True, events=stopper, atol=1e-12, rtol=1e-9)
 
     r = solutions.t # t here mean the 'time points' which in this case are the radius values or rvals
@@ -158,11 +158,11 @@ def get_f(rhoc, Tc):
 
     #Step 1: Select rhoc and Tc
     #Step 2: Integrate equations (2) to obtain Rstar, L(Rstar), T(Rstar)
-    M = 4*np.pi*(r0**3)*rhoc/3
-    L0 = 4*np.pi*(r0**3)*rhoc*tools.epsilon(rhoc, Tc)
-    tau0 = tools.kappa(rhoc, Tc)*rhoc*r0
+    M0 = 4*np.pi*(r0**3)*rhoc/3
+    L0 = M0*epsilon(rhoc, Tc)
+    tau0 = kappa(rhoc, Tc)*rhoc*r0
 
-    initial_conditions = np.array([rhoc, Tc, M, L0, tau0])
+    initial_conditions = np.array([rhoc, Tc, M0, L0, tau0])
     r, rho, T, M, L, tau = solveODEs(r0, r_max, initial_conditions)
 
     """
@@ -174,7 +174,6 @@ def get_f(rhoc, Tc):
     i = 0
     deltau = 1
     tolerance = 1e-3
-    #r, rho, T, M, L, tau = solveODEs(r0, r_max, initial_conditions)
     while (deltau > tolerance) and (M < 1e3 * s.Msun) and (i < rs.size):
 
         ic = tools.RKF45Method_adaptive(grav.dydr_gscaled, rs[i], ic, 1000)
@@ -257,6 +256,7 @@ def create_star(Tc):
     """
 
     rhoc = new_bisection(Tc)
+
     _, r, rho, T, M, L, tau, i = get_f(rhoc, Tc)
     R_star, rho_c, M_star, L_star, T_star = r[i], rho[0], M[i], L[i], T[i]
 
@@ -264,27 +264,27 @@ def create_star(Tc):
     r, rho_r, T_r, M_r, L_r = r[:i], rho[:i], T[:i], M[:i], L[:i]
 
     #Calculate the pressures
-    P_r = tools.pressure(rho_r, T_r)
-    Pdeg = tools.P_degen(rho_r)
-    Pgas = tools.P_ideal(rho_r, T_r)
-    Ppho = tools.P_photongas(T_r)
+    P_r = pressure(rho_r, T_r)
+    Pdeg = P_degen(rho_r)
+    Pgas = P_ideal(rho_r, T_r)
+    Ppho = P_photongas(T_r)
 
     #Calculating the mean opacities
     kappa_values = []
     for i in range(0, len(rho_r)):
-        kappa_values.append(tools.kappa(rho_r[i], T_r[i]))
+        kappa_values.append(kappa(rho_r[i], T_r[i]))
 
-    kappa_ff_values = tools.kappa_ff(rho_r, T_r)
-    kappa_es_values = np.full(len(kappa_ff_values), tools.kappa_es())
-    kappa_Hminus_values = tools.kappa_Hminus(rho_r, T_r)
+    kappa_ff_values = kappa_ff(rho_r, T_r)
+    kappa_es_values = np.full(len(kappa_ff_values), kappa_es())
+    kappa_Hminus_values = kappa_Hminus(rho_r, T_r)
 
     # Saving all values related to dL/dr
-    dL_dr_values = tools.dL_dr(rho_r , T_r, r)
-    dL_dr_pp_values = tools.dL_dr_PP(rho_r , T_r, r)
-    dL_dr_cno_values = tools.dL_dr_CNO(rho_r , T_r, r)
+    dL_dr_values = dL_dr(r, rho_r , T_r)
+    dL_dr_pp_values = dL_dr_PP(r, rho_r , T_r)
+    dL_dr_cno_values = dL_dr_CNO(r, rho_r , T_r)
 
     # Saving all values for dln(P)/dln(T) partial derivative
-    dlnP_dlnT_values = tools.dlnP_dlnT(P_r, T_r)
+    dlnP_dlnT_values = dlnP_dlnT(P_r, T_r)
 
     df = pd.DataFrame(data=zip(r/R_star, rho_r, L_r, M_r, T_r, Pgas,
                                Pdeg, Ppho, P_r, dlnP_dlnT_values,

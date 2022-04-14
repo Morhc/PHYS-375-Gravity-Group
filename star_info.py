@@ -145,7 +145,7 @@ def plot_star(data, info = None, savepath=""):
 
         ax.set_xlim(0,1)
 
-        
+
         ax.xaxis.set_major_locator(tk.MultipleLocator(0.2))
         ax.xaxis.set_minor_locator(tk.MultipleLocator(0.05))
 
@@ -161,7 +161,7 @@ def plot_star(data, info = None, savepath=""):
             ax.tick_params(labelbottom = False)
 
         ax.yaxis.set_minor_locator(tk.AutoMinorLocator())
-
+        
 
     if savepath != "":
         plt.savefig(savepath)

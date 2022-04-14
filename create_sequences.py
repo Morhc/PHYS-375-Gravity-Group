@@ -10,7 +10,7 @@ from standards import Standards as s
 from generate_star import create_star
 
 def main():
-    '''
+    
     for num, Tc in enumerate(np.linspace(3e6, 35e6, 25), start=0):
         start = time.time()
 
@@ -30,9 +30,10 @@ def main():
         df.to_csv(rf"{os.path.join(s.data_folder, 'test', f'star_{num}.csv')}", index=False)
 
         del df
-    '''
 
+    '''
     Tc = 8235440
+    Tc = 2e7
     df, star_data = create_star(Tc)
 
     rho_c, Tc, R_star, M_star, L_star, T_star = star_data
@@ -45,7 +46,7 @@ def main():
     df.to_csv(rf"{os.path.join(s.data_folder, 'test_star.csv')}", index=False)
 
     del df
-    
+    '''
 
 if __name__ == "__main__":
     main()

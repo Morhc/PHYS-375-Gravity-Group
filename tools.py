@@ -36,7 +36,7 @@ def dydr(r,y) :
     rho, T, M, L, tau = y
 
     # The five ODEs we are trying to solve (equation 2)
-    dydr = np.array([drho_dr(rho, T, r, L, M), dT_dr(rho, T, r, L, M), dM_dr(rho, r), dL_dr(rho, T, r), dtau_dr(rho, T)])
+    dydr = np.array([drho_dr(rho, T, r, L, M), dT_dr(rho, T, r, L, M), dM_dr(r, rho), dL_dr(r, rho, T), dtau_dr(rho, T)])
 
     return dydr
 
@@ -268,76 +268,76 @@ def dtau_dr(rho, T):
         rho - The density at some radius.
         T - The temperature at some radius.
     OUTPUTS:
-        tau - The optical depth.
+        dtau - The optical depth.
     """
 
-    tau = kappa(rho, T)*rho
+    dtau = kappa(rho, T)*rho
 
-    return tau
+    return dtau
 
-def dL_dr_PP(rho, T, r):
+def dL_dr_PP(r, rho, T):
     """Calculates the luminosity via Equation 2, but replaces epsilon with the equation for eps_pp.
     INPUTS:
         rho - The density at some radius.
         T - The temperature at some radius.
         r - The radius.
     OUTPUTS:
-        dL_dr_pp - The luminosity from the PP chain at some radius, in W/m.
+        dL_pp - The luminosity from the PP chain at some radius, in W/m.
     """
 
     rho5, T6 = rho/1e5, T/1e6
 
     epp = (1.07e-7)*rho5*(s.X**2)*(T6**4) #PP-chain, in W/kg
 
-    dL_dr_pp = 4*np.pi*(r**2)*rho*epp
+    dL_pp = dM_dr(r, rho)*epp
 
-    return dL_dr_pp
+    return dL_pp
 
-def dL_dr_CNO(rho, T, r):
+def dL_dr_CNO(r, rho, T):
     """Calculates the luminosity via Equation 2, but replaces epsilon with the equation for eps_cno.
     INPUTS:
         rho - The density at some radius.
         T - The temperature at some radius.
         r - The radius.
     OUTPUTS:
-        dL_dr_cno - The luminosity from the CNO cycle at some radius, in W/m.
+        dL_cno - The luminosity from the CNO cycle at some radius, in W/m.
     """
 
     rho5, T6 = rho/1e5, T/1e6
 
     ecno = (8.24e-26)*rho5*s.X*s.X_CNO*(T6**19.9) #CNO cycle, in W/kg
 
-    dL_dr_cno = 4*np.pi*(r**2)*rho*ecno
+    dL_cno = dM_dr(r, rho)*ecno
 
 
-    return dL_dr_cno
+    return dL_cno
 
-def dL_dr(rho, T, r):
+def dL_dr(r, rho, T):
     """Calculates the luminosity via Equation 2.
     INPUTS:
         rho - The density at some radius.
         T - The temperature at some radius.
         r - The radius.
     OUTPUTS:
-        dL_dr - The luminosity at some radius, in W/m.
+        dL - The luminosity at some radius, in W/m.
     """
 
-    dL_dr = 4*np.pi*(r**2)*rho*epsilon(rho, T)
+    dL = dM_dr(r, rho)*epsilon(rho, T)
 
-    return dL_dr
+    return dL
 
-def dM_dr(rho, r):
+def dM_dr(r, rho):
     """Calculates the mass via Equation 2.
     INPUTS:
         rho - The density at some radius.
         r - The radius.
     OUTPUTS:
-        dM_dr - The mass at some radius, in kg/m.
+        dM - The mass at some radius, in kg/m.
     """
 
-    dM_dr = 4*np.pi*(r**2)*rho
+    dM = 4*np.pi*(r**2)*rho
 
-    return dM_dr
+    return dM
 
 def dT_dr(rho, T, r, L, M):
     """Calculates the temperature via Equation 2.
@@ -348,7 +348,7 @@ def dT_dr(rho, T, r, L, M):
         L - The luminosity at some radius.
         M - The mass at some radius.
     OUTPUTS:
-        dT_dr - The temperature at some radius, in K/m.
+        dT - The temperature at some radius, in K/m.
 
     DEFUNCT.
     """
@@ -356,9 +356,9 @@ def dT_dr(rho, T, r, L, M):
     A = 3*kappa(rho, T)*rho*L/(16*np.pi*s.a*s.c*(T**3)*(r**2))
     B = (1 - 1/s.gamma)*T*s.G*M*rho/(pressure(rho, T)*(r**2))
 
-    dT_dr = -min([A, B])
+    dT = -min([A, B])
 
-    return dT_dr
+    return dT
 
 def drho_dr(rho, T, r, L, M):
     """Calculates the density via Equation 2.
@@ -369,7 +369,7 @@ def drho_dr(rho, T, r, L, M):
         L - The luminosity at some radius.
         M - The mass at some radius.
     OUTPUTS:
-        drho_dr - The density at some radius, in kg/m^4.
+        drho - The density at some radius, in kg/m^4.
 
     DEFUNCT.
     """
@@ -378,9 +378,9 @@ def drho_dr(rho, T, r, L, M):
     B = dP_dT(rho, T)*dT_dr(rho, T, r, L, M)
     C = dP_drho(rho, T)
 
-    drho_dr = -(A+B)/C
+    drho = -(A+B)/C
 
-    return drho_dr
+    return drho
 
 def luminosity_check(R, L, T):
     """This function is used as a check to see how close the ODE solved luminosity is to the
@@ -404,13 +404,16 @@ def dtau(r, condition):
 
     rho, T, M, L, tau = condition
     #need to switch to scaled version
-    return (kappa(rho,T)*(rho**2) / abs(drho_dr_scaled(rho, T, r, L, M, lam)))
+
+    dtau = kappa(rho,T)*(rho**2) / np.abs(drho_dr_scaled(r, rho, T, M, L, lam))
+
+    return dtau
 
 # ---------------------------------
 # Modification of Gravity Section:
 # ---------------------------------
 
-def dT_dr_scaled(rho, T, r, L, M, lam):
+def dT_dr_scaled(r, rho, T, M, L, lam):
     """Calculates the temperature via Equation 2, with a gravitational modification according to Equation 19.
     INPUTS:
         rho - The density at some radius.
@@ -419,17 +422,17 @@ def dT_dr_scaled(rho, T, r, L, M, lam):
         L - The luminosity at some radius.
         M - The mass at some radius.
     OUTPUTS:
-        dT_dr - The temperature at some radius, in K/m.
+        dT - The temperature at some radius, in K/m.
     """
 
     A = 3*kappa(rho, T)*rho*L/(16*np.pi*s.a*s.c*(T**3)*(r**2))
     B = (1 - 1/s.gamma)*T*s.G*M*rho*(1+lam/r)/(pressure(rho, T)*(r**2))
 
-    dT_dr = -min([A, B])
+    dT = -min([A, B])
 
-    return dT_dr
+    return dT
 
-def drho_dr_scaled(rho, T, r, L, M, lam):
+def drho_dr_scaled(r, rho, T, M, L, lam):
     """Calculates the density via Equation 2, with a gravitational modification according to Equation 19.
     INPUTS:
         rho - The density at some radius.
@@ -438,16 +441,16 @@ def drho_dr_scaled(rho, T, r, L, M, lam):
         L - The luminosity at some radius.
         M - The mass at some radius.
     OUTPUTS:
-        drho_dr - The density at some radius, in kg/m^4.
+        drho - The density at some radius, in kg/m^4.
     """
 
     A = s.G*M*rho*(1+lam/r)/(r**2)
     B = dP_dT(rho, T)*dT_dr(rho, T, r, L, M)
     C = dP_drho(rho, T)
 
-    drho_dr = -(A+B)/C
+    drho = -(A+B)/C
 
-    return drho_dr
+    return drho
 
 def dydr_gscaled(r, y) :
     """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
@@ -464,11 +467,11 @@ def dydr_gscaled(r, y) :
 
 
     # The five ODEs we are trying to solve (equation 2)
-    dydr = np.zeros(5)
-    dydr[0] = drho_dr_scaled(rho, T, r, L, M, lam)
-    dydr[1] = dT_dr_scaled(rho, T, r, L, M, lam)
-    dydr[2] = dM_dr(rho, r)
-    dydr[3] = dL_dr(rho, T, r)
-    dydr[4] = dtau_dr(rho, T)
+    dydr = np.array([drho_dr_scaled(r, rho, T, M, L, lam),
+                     dT_dr_scaled(r, rho, T, M, L, lam),
+                     dM_dr(r, rho),
+                     dL_dr(r, rho, T),
+                     dtau_dr(rho, T)
+                    ])
 
     return dydr
