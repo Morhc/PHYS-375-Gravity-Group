@@ -9,7 +9,7 @@ import time
 from standards import Standards as s
 from generate_star import create_star
 
-lam = '0'
+lam = '-1e3'
 
 def main():
 
