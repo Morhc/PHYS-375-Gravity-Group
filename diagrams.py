@@ -154,7 +154,7 @@ def RM_diag(data, savepath=""):
 if __name__ == '__main__':
 
     both = []
-    for lam in [-100, -10, 0, 10, 100, 500]:
+    for lam in ['-1e8', '-1e3', '100', '0', '100', '1e3', '1e8']:
         data = pd.read_csv(os.path.join(s.data_folder, f'stars_lam_{lam}', 'generated_stars.csv'), header=0)[:50]
         both.append((data, lam))
 
@@ -165,7 +165,7 @@ if __name__ == '__main__':
         #HR_diag(data, hr_path)
         #LM_diag(data, lm_path)
         #RM_diag(data, rm_path)
-    data = pd.read_csv(os.path.join(s.data_folder, 'test', 'generated_stars.csv'), header=0)[:50]
+    data = pd.read_csv(os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv'), header=0)[:50]
 
     both = [(data,0)]
     hr_path = os.path.join(s.plots_folder, 'HR_diag_comp')

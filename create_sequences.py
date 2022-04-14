@@ -9,8 +9,10 @@ import time
 from standards import Standards as s
 from generate_star import create_star
 
+lam = 0
+
 def main():
-    
+
     for num, Tc in enumerate(np.linspace(3e6, 35e6, 25), start=0):
         start = time.time()
 
@@ -22,12 +24,12 @@ def main():
 
         print(f'Saving the data. Took {time.time()-start} seconds.')
         ### SAVING OUT THE DATA ###
-        summary_file = os.path.join(s.data_folder, 'test', 'generated_stars.csv')
+        summary_file = os.path.join(s.data_folder, f'stars_lam_{lam}', 'generated_stars.csv')
 
         with open(summary_file, 'a+') as f:
             f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star},{num}\n')
 
-        df.to_csv(rf"{os.path.join(s.data_folder, 'test', f'star_{num}.csv')}", index=False)
+        df.to_csv(rf"{os.path.join(s.data_folder, f'stars_lam_{lam}', f'star_{num}.csv')}", index=False)
 
         del df
 
