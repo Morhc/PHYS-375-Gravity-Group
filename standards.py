@@ -33,6 +33,10 @@ class Standards:
     Z = 1 - X - Y
     mu = 1/(2*X + 0.75*Y + 0.5*Z)
 
+    ### IF I HAVE TIME:
+    # OPTION 1: X matters the most
+    # OPTION 2: Y matters the most
+    # OPTION 3: mu matters the most
 
 
     #scaling constants

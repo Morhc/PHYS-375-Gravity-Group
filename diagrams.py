@@ -40,9 +40,11 @@ def HR_diag(data, savepath=""):
     for xx in data:
         fff, lam = xx
 
-        Lscaled = fff.L/s.Lsun * 1e-7
+        filter = fff.R < 3.47e12 #means that the code broke
 
-        ax.plot(fff.Tsurf, Lscaled, label=rf'$\lambda$ = {lam}')
+        Lscaled = fff[filter].L/s.Lsun * 1e-7
+
+        ax.scatter(fff[filter].Tsurf, Lscaled, label=rf'$\lambda$ = {lam}')
 
     #from p. 342 in Ryden
     spectral_type = ['O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T']
@@ -80,13 +82,15 @@ def LM_diag(data, savepath=""):
     for xx in data:
         fff, lam = xx
 
-        Lscaled = fff.L/s.Lsun * 1e-7  * 1e-7
-        Mscaled = fff.M/s.Msun / 1000
+        filter = fff.R < 3.47e12 #means that the code broke
 
-        ax.plot(Mscaled, Lscaled, label=rf'$\lambda$ = {lam}')
+        Lscaled = fff[filter].L/s.Lsun * 1e-7
+        Mscaled = fff[filter].M/s.Msun / 1000
+
+        ax.scatter(Mscaled, Lscaled, label=rf'$\lambda$ = {lam}')
 
     #from Ryden p. 330
-    Mtest = np.linspace(0.1, 10, 100)
+    Mtest = np.linspace(0.1, 80, 100)
     Ltest = []
     for M in Mtest:
         if M < 0.7:
@@ -94,7 +98,7 @@ def LM_diag(data, savepath=""):
         else:
             Ltest.append(1.02*(M**3.92))
 
-    plt.plot(Mtest, Ltest, label='Expectation', ls='--')
+    plt.plot(Mtest, Ltest, label='Expectation', ls='--', color='black')
 
     ax.set_xlabel(r'$M$/$M_\odot$')
     ax.set_ylabel(r'$L$/$L_\odot$')
@@ -121,12 +125,16 @@ def RM_diag(data, savepath=""):
 
     for xx in data:
         fff, lam = xx
-        Rscaled = fff.R/s.Rsun / 100
-        Mscaled = fff.M/s.Msun / 1000
-        ax.plot(Mscaled, Rscaled, label=rf'$\lambda$ = {lam}')
+
+        filter = fff.R < 3.47e12 #means that the code broke
+
+        Rscaled = fff[filter].R/s.Rsun / 100
+        Mscaled = fff[filter].M/s.Msun / 1000
+
+        ax.scatter(Mscaled, Rscaled, label=rf'$\lambda$ = {lam}')
 
     #from Ryden p. 330
-    Mtest = np.linspace(0.1, 10, 100)
+    Mtest = np.linspace(0.1, 80, 100)
     Rtest = []
     for M in Mtest:
         if M < 1.66:
@@ -134,7 +142,7 @@ def RM_diag(data, savepath=""):
         else:
             Rtest.append(1.33*(M**0.555))
 
-    plt.plot(Mtest, Rtest, label='Expectation', ls='--')
+    plt.plot(Mtest, Rtest, label='Expectation', ls='--', color='black')
 
     ax.set_xlabel(r'$M$/$M_\odot$')
     ax.set_ylabel(r'$R$/$R_\odot$')

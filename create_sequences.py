@@ -9,11 +9,12 @@ import time
 from standards import Standards as s
 from generate_star import create_star
 
-lam = 0
+lam = '0'
 
 def main():
 
-    for num, Tc in enumerate(np.linspace(3e6, 35e6, 25), start=0):
+
+    for num, Tc in enumerate(np.linspace(3e6, 35e6, 25)[14:], start=14):
         start = time.time()
 
         print(f'Generating star {num}. Temperature of {Tc}.')
@@ -32,6 +33,7 @@ def main():
         df.to_csv(rf"{os.path.join(s.data_folder, f'stars_lam_{lam}', f'star_{num}.csv')}", index=False)
 
         del df
+
 
     '''
     Tc = 8235440
