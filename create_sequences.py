@@ -13,9 +13,7 @@ lam = '0'
 
 def main():
 
-    '''
-
-    for num, Tc in enumerate(np.linspace(3e6, 35e6, 25)[14:], start=14):
+    for num, Tc in enumerate(np.linspace(3e6, 25e6, 25)[0:], start=0):
         start = time.time()
 
         print(f'Generating star {num}. Temperature of {Tc}.')
@@ -36,8 +34,6 @@ def main():
         del df
 
     '''
-
-
     Tc = 8235440
     Tc = 2e7
     Tc = 3.5e7
@@ -53,7 +49,7 @@ def main():
     df.to_csv(rf"{os.path.join(s.data_folder, 'test_star.csv')}", index=False)
 
     del df
-
+    '''
 
 if __name__ == "__main__":
     main()
