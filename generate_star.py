@@ -225,7 +225,7 @@ def new_bisection(Tc):
         fmid = get_f(mid_rhoc, Tc)[0]
         fmax = get_f(max_rhoc, Tc)[0]
 
-        print(count, mid_rhoc/1000, fmin, fmid, fmax)
+        #print(count, mid_rhoc/1000, fmin, fmid, fmax)
 
         #nothing will change if this happens
         if fmin == fmid or fmid == fmax:
