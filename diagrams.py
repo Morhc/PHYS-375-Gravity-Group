@@ -87,7 +87,7 @@ def LM_diag(data, savepath=""):
         Lscaled = fff[filter].L/s.Lsun * 1e-7
         Mscaled = fff[filter].M/s.Msun / 1000
 
-        ax.scatter(Mscaled, Lscaled, label=rf'$\lambda$ = {lam}')
+        ax.scatter(np.log10(Mscaled), np.log10(Lscaled), label=rf'$\lambda$ = {lam}')
 
     #from Ryden p. 330
     Mtest = np.linspace(0.1, 80, 100)
@@ -98,10 +98,10 @@ def LM_diag(data, savepath=""):
         else:
             Ltest.append(1.02*(M**3.92))
 
-    plt.plot(Mtest, Ltest, label='Expectation', ls='--', color='black')
+    plt.plot(np.log10(Mtest), np.log10(Ltest), label='Expectation', ls='--', color='black')
 
-    ax.set_xlabel(r'$M$/$M_\odot$')
-    ax.set_ylabel(r'$L$/$L_\odot$')
+    ax.set_xlabel(r'log$_{10}$($M$/$M_\odot$)')
+    ax.set_ylabel(r'log$_{10}$($L$/$L_\odot$)')
 
     plt.legend()
 
@@ -131,7 +131,7 @@ def RM_diag(data, savepath=""):
         Rscaled = fff[filter].R/s.Rsun / 100
         Mscaled = fff[filter].M/s.Msun / 1000
 
-        ax.scatter(Mscaled, Rscaled, label=rf'$\lambda$ = {lam}')
+        ax.scatter(np.log10(Mscaled), np.log10(Rscaled), label=rf'$\lambda$ = {lam}')
 
     #from Ryden p. 330
     Mtest = np.linspace(0.1, 80, 100)
@@ -142,10 +142,10 @@ def RM_diag(data, savepath=""):
         else:
             Rtest.append(1.33*(M**0.555))
 
-    plt.plot(Mtest, Rtest, label='Expectation', ls='--', color='black')
+    plt.plot(np.log10(Mtest), np.log10(Rtest), label='Expectation', ls='--', color='black')
 
-    ax.set_xlabel(r'$M$/$M_\odot$')
-    ax.set_ylabel(r'$R$/$R_\odot$')
+    ax.set_xlabel(r'log$_{10}$($M$/$M_\odot$)')
+    ax.set_ylabel(r'log$_{10}$($R$/$R_\odot$)')
 
     plt.legend()
 
