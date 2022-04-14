@@ -151,7 +151,7 @@ def plot_star(data, info = None, savepath=""):
         ax.xaxis.set_major_locator(tk.MultipleLocator(0.2))
         ax.xaxis.set_minor_locator(tk.MultipleLocator(0.05))
 
-
+        
         if i in [0,1]:
             ax.yaxis.set_major_locator(tk.MultipleLocator(0.2))
         elif i in [2, 3]:

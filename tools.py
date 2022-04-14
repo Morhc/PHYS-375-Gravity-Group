@@ -119,7 +119,7 @@ def kappa_ff(rho, T):
 
     rho3 = rho/1e3
 
-    kappaff = (1e24)*(s.Z+0.0001)*(rho3**0.7)*(T**(-3.5))
+    kappaff = (1e24)*(1+s.X)*(s.Z+0.0001)*(rho3**0.7)*(T**(-3.5))
 
     return kappaff
 

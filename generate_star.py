@@ -29,14 +29,14 @@ def solveODEs(r_init, r_fin, y0):
         if condition[2] > 1000*s.Msun: return -1
 
         #either positive or negative, the threshold is 1e-3 (the <<1)
-        return dtau(r, condition) - 1e-4
+        return dtau(r, condition) - 1e-3
 
     r_values = np.linspace(r_init, r_fin, 100000)
     t_span = (r_init, r_fin)
 
     # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
     solutions = int.solve_ivp(dydr_gscaled, t_span, y0, 'RK45', t_eval=r_values,
-                              dense_output = True, events=stopper, atol=1e-12, rtol=1e-9)
+                              dense_output = True, events=stopper, atol=1e-15, rtol=1e-12)
 
     r = solutions.t # t here mean the 'time points' which in this case are the radius values or rvals
     rho, T, M, L, tau = solutions.y

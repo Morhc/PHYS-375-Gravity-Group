@@ -29,7 +29,8 @@ class Standards:
     gamma = 5/3 # ideal gas
     X = 0.7 # need to adjust these values. Ensure that X+Y+Z = 1
     X_CNO = 0.03*X
-    Y = 0.26584
+    #Y = 0.26584
+    Y = 0.28
     Z = 1 - X - Y
     mu = 1/(2*X + 0.75*Y + 0.5*Z)
 
