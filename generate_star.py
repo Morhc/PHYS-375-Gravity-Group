@@ -189,29 +189,3 @@ def create_star(Tc):
     df['kappaHm'] = df['kappaHm'] * 10
 
     return df, (rho_c/1000, Tc, R_star*100, M_star*1000, L_star/1e-7, T_star)
-
-
-    """
-    #set the initial conditions
-    r_initial = 1
-    r_final = 1e11
-    steps = 100000 #number of steps
-
-    # intializing an array that contains the intial values for density, temperature, mass, luminosity and tau
-    y = np.array([0, Tc, 0, 0, 0])
-
-    #our solution to f(rho_c)
-    rho_c = bisection(rhoc_min, rhoc_max, r_initial, r_final, y, steps)
-
-    # re-defining the previos 'y' array to now contain the newly determine rho_c value
-    y_new =  np.array([rho_c, Tc, 0, 0, 0])
-
-    # Solving the ODEs
-    final = solveODEs(r_initial, r_final, y_new, steps)
-
-    # Storing the solutions to the ODEs appropriately
-    r, rho_r, T_r, M_r, L_r, tau_r = final
-
-    i = np.argmin(tau_r[-1] - tau_r - 2/3)
-
-    """
