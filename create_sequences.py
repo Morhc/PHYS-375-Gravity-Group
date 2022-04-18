@@ -32,7 +32,7 @@ def main():
         df.to_csv(rf"{os.path.join(s.data_folder, f'stars_lam_{lam}', f'star_{num}.csv')}", index=False)
 
         del df
-
+    
     '''
     Tc = 8235440
     Tc = 2e7

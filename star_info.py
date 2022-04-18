@@ -88,7 +88,7 @@ def plot_star(data, info = None, savepath=""):
 
     axes[2,0].plot(r_R, data['dlogP/dlogT'], color = s.colours[0])
 
-    axes[2,0].set_ylim(0, 2*np.nanmax(data['dlogP/dlogT']))
+    axes[2,0].set_ylim(0, 1.2*np.nanmax(data['dlogP/dlogT']))
     axes[2,0].set_ylabel(r'dlog$P$/dlog$T$')
     axes[2,0].set_xlabel(r'$r$/$R_*$')
 
@@ -151,18 +151,20 @@ def plot_star(data, info = None, savepath=""):
         ax.xaxis.set_major_locator(tk.MultipleLocator(0.2))
         ax.xaxis.set_minor_locator(tk.MultipleLocator(0.05))
 
-        
+
         if i in [0,1]:
             ax.yaxis.set_major_locator(tk.MultipleLocator(0.2))
         elif i in [2, 3]:
-            ax.yaxis.set_major_locator(tk.MultipleLocator(2))
+            if i != 3:
+                ax.yaxis.set_major_locator(tk.MultipleLocator(2))
         else:
             ax.yaxis.set_major_locator(tk.MultipleLocator(5))
 
         if i not in [3,4]:
             ax.tick_params(labelbottom = False)
 
-        ax.yaxis.set_minor_locator(tk.AutoMinorLocator())
+        if i != 3:
+            ax.yaxis.set_minor_locator(tk.AutoMinorLocator())
 
 
     if savepath != "":
@@ -184,11 +186,14 @@ if __name__ == '__main__':
         plot_star(data, info = info, savepath = savepath)
     """
 
-    summary = os.path.join(s.data_folder, 'summary_test.csv')
-    info = pd.read_csv(summary, header=0).iloc[-1, :]
+    summary = os.path.join(s.data_folder, 'stars_lam_1e7','generated_stars.csv')
+    info = pd.read_csv(summary, header=0).iloc[24, :]
 
-    star = os.path.join(s.data_folder, 'test_star.csv')
+    star = os.path.join(s.data_folder, 'stars_lam_1e7', 'star_24.csv')
     data = pd.read_csv(star, header=0)
 
-    savepath = os.path.join(s.plots_folder, 'test_star.png')
+    savepath = os.path.join(s.plots_folder, 'pos_grav_star_1.png')
+
+    print('Plotting')
+
     plot_star(data, info=info, savepath=savepath)

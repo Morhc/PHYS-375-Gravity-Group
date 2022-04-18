@@ -90,7 +90,7 @@ def LM_diag(data, savepath=""):
         ax.scatter(np.log10(Mscaled), np.log10(Lscaled), label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
 
     #from Ryden p. 330
-    Mtest = np.linspace(0.1, 80, 100)
+    Mtest = np.linspace(0.1, 10, 100)
     Ltest = []
     for M in Mtest:
         if M < 0.7:
@@ -134,7 +134,7 @@ def RM_diag(data, savepath=""):
         ax.scatter(np.log10(Mscaled), np.log10(Rscaled), label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
 
     #from Ryden p. 330
-    Mtest = np.linspace(0.1, 80, 100)
+    Mtest = np.linspace(0.1, 10, 100)
     Rtest = []
     for M in Mtest:
         if M < 1.66:
@@ -175,10 +175,10 @@ if __name__ == '__main__':
         #RM_diag(data, rm_path)
     #data = pd.read_csv(os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv'), header=0)[:50]
 
-    both = [(data,0)]
-    hr_path = os.path.join(s.plots_folder, 'HR_diag_lam=0')
-    lm_path = os.path.join(s.plots_folder, 'LM_diag_lam=0')
-    rm_path = os.path.join(s.plots_folder, 'RM_diag_lam=0')
+    #both = [(data,0)]
+    hr_path = os.path.join(s.plots_folder, 'HR_diag_full')
+    lm_path = os.path.join(s.plots_folder, 'LM_diag_full')
+    rm_path = os.path.join(s.plots_folder, 'RM_diag_full')
 
     HR_diag(both, hr_path)
     LM_diag(both, lm_path)

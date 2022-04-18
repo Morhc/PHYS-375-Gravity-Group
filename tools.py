@@ -40,44 +40,6 @@ def dydr(r,y) :
 
     return dydr
 
-def RKF45Method_adaptive(f,r,y,h):
-    '''Second RK4Method which invovled adpative step sizes
-       Source: https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta%E2%80%93Fehlberg_method#Implementing_an_RK4(5)_Algorithm
-       The coefficietns for 'A' were taken from the table title "COEFFICIENTS FOR RK4(5), FORMULA 2 Table III in Fehlberg"
-
-       SWITCHED TO FORMULA 1 INSTEAD !
-
-       Input(s):
-       - 'r' - array of radius
-       - 'y' - 5 column matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth]
-       - 'h' - the stepsize
-
-       Output(s):
-       - 'y5' - 5th order solutions to ODE
-       - 'hnew' - the new adpted stepsize
-    '''
-    K1 = h*f(r, y)
-    K2 = h*f(r + (2/9)*h, y + (2/9)*K1 )
-    K3 = h*f(r + (1/3)*h, y + (1/12)*K1 + (1/4)*K2 )
-    K4 = h*f(r + (3/4)*h, y + (69/128)*K1 + (-243/128)*K2 + (135/64)*K3 )
-    K5 = h*f(r + (1)*h, y + (-17/12)*K1 + (27/4)*K2 + (-27/5)*K3 + (16/15)*K4 )
-    K6 = h*f(r + (5/6)*h, y + (65/432)*K1 + (-5/16)*K2 + (13/16)*K3 + (4/27)*K4 + (5/144)*K5 )
-
-    new_y = y + (47/450)*K1 + 0*K2 + (12/25)*K3 + (32/225)*K4 + (1/30)*K5 + (6/25)*K6
-
-    # The truncation error (TE)
-    TE = np.abs( (1/360)*K1 + (0)*K2 + (-128/4275)*K3 + (-2197/75240)*K4 + (1/50)*K5 + (2/55)*K6 )
-
-    # the error estimate of the RKF45 method
-    y5 = y + (25/216)*K1 + (1408/2565)*K3 + (2197/4101)*K4 - (1/5)*K5
-    y4 = y + (16/135)*K1 + (6656/12825)*K3 + (28561/56430)*K4 - (9/50)*K5 + (2/55)*K6
-    error = np.abs(y5 - y4)
-
-    # Calcuating the new step-sizes
-    hnew = min((0.9)*h*( (error/TE)**(1/5) ))
-
-    return new_y
-
 def epsilon(rho, T):
     """Calculates epsilon using Equations 8 and 9 from the project description.
     INPUTS:
