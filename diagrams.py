@@ -76,10 +76,6 @@ def HR_diag(data, savepath=""):
 
     plt.close('all')
 
-def rel_err(val, the):
-
-    return abs(val - the)/the * 100
-
 def LM_diag(data, savepath=""):
     """Creates a L-M diagram with the generated stars.
     INPUTS:
@@ -96,7 +92,6 @@ def LM_diag(data, savepath=""):
     ax.tick_params(which='major', length=5)
     ax.tick_params(which='minor', length=3)
 
-    e = []
     for xx in data:
         fff, lam = xx
 
@@ -105,22 +100,10 @@ def LM_diag(data, savepath=""):
         Lscaled = fff.L/s.Lsun * 1e-7
         Mscaled = fff.M/s.Msun / 1000
 
-        for M, L in zip(Mscaled, Lscaled):
-            if M < 0.7:
-                Lcomp = 0.35*(M**2.62)
-                e.append(rel_err(L, Lcomp))
-            else:
-                Lcomp = 1.02*(M**3.92)
-                e.append(rel_err(L, Lcomp))
-
         #ax.scatter(np.log10(Mscaled), np.log10(Lscaled), label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
         ax.scatter(Mscaled, Lscaled, label='Generated', edgecolor='black', lw=1)
 
-    #mu, std = np.average(np.array(e)), np.std(np.array(e))
-    #print(mu, std)
 
-    #i = np.argmin(np.array(e))
-    #print(Mscaled[i])
     #from Ryden p. 330
     Mtest = np.linspace(0.1, 10, 100)
     Ltest = []
@@ -161,7 +144,6 @@ def RM_diag(data, savepath=""):
     ax.tick_params(which='major', length=5)
     ax.tick_params(which='minor', length=3)
 
-    e = []
     for xx in data:
         fff, lam = xx
 
@@ -170,22 +152,8 @@ def RM_diag(data, savepath=""):
         Rscaled = fff.R/s.Rsun / 100
         Mscaled = fff.M/s.Msun / 1000
 
-        for M, R in zip(Mscaled, Rscaled):
-            if M < 0.7:
-                Rcomp = 1.06*(M**0.945)
-                e.append(rel_err(R, Rcomp))
-            else:
-                Rcomp = 1.33*(M**0.555)
-                e.append(rel_err(R, Rcomp))
-
         #ax.scatter(np.log10(Mscaled), np.log10(Rscaled), label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
         ax.scatter(Mscaled, Rscaled, label='Generated', edgecolor='black', lw=1)
-
-    mu, std = np.average(np.array(e)), np.std(np.array(e))
-    print(mu, std)
-
-    i = np.argmin(np.array(e)[:18])
-    print(Mscaled.to_numpy()[i])
 
     #from Ryden p. 330
     Mtest = np.linspace(0.1, 10, 100)
@@ -229,7 +197,6 @@ if __name__ == '__main__':
         #HR_diag(data, hr_path)
         #LM_diag(data, lm_path)
         #RM_diag(data, rm_path)
-    #data = pd.read_csv(os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv'), header=0)[:50]
 
     data = pd.read_csv(os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv'), header=0)
 
