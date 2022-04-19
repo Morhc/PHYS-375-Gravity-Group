@@ -185,14 +185,16 @@ if __name__ == '__main__':
         savepath = os.path.join(s.plots_folder, f'Broderick_{one}mass.png')
         plot_star(data, info = info, savepath = savepath)
     """
+    i = 5
+    i = 22
 
-    summary = os.path.join(s.data_folder, 'stars_lam_1e7','generated_stars.csv')
-    info = pd.read_csv(summary, header=0).iloc[24, :]
+    summary = os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv')
+    info = pd.read_csv(summary, header=0).iloc[i, :]
 
-    star = os.path.join(s.data_folder, 'stars_lam_1e7', 'star_24.csv')
+    star = os.path.join(s.data_folder, 'stars_lam_0', f'star_{i}.csv')
     data = pd.read_csv(star, header=0)
 
-    savepath = os.path.join(s.plots_folder, 'pos_grav_star_1.png')
+    savepath = os.path.join(s.plots_folder, 'test.png')
 
     print('Plotting')
 

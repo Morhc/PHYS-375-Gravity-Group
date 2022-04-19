@@ -86,6 +86,7 @@ def new_bisection(Tc):
 
     fmid, mid_rhoc = 10, 10 #arbitrary starting point / irrelevant
     tolerance = 1e-5 #tolerance for the bisection method
+    tolerance = 5
 
     count = 0 #for the sake of processing time
     while (abs(fmid) > tolerance) and (count < 200):
@@ -95,8 +96,6 @@ def new_bisection(Tc):
         fmin = get_f(min_rhoc, Tc)[0]
         fmid = get_f(mid_rhoc, Tc)[0]
         fmax = get_f(max_rhoc, Tc)[0]
-
-        #print(count, mid_rhoc/1000, fmin, fmid, fmax)
 
         #nothing will change if this happens
         if fmin == fmid or fmid == fmax:
