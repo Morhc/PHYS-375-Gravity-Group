@@ -16,3 +16,10 @@ This project will require the user to install the following Python libraries:
 1. Set the lambda value you want in tools.py
 2. Set the Tc range want in create_sequences.py
 3. Run create_sequences.py
+
+## Code Structure
++ **create_sequences.py**: used to generate the stars for multiple central temperatures and saves out the data
++ **generate_star.py**: has the integration and bisection methods, and packages the data into a pandas DataFrame to be saved
++ **tools.py**: contains all the stellar structure equations
++ **star_info.py**: plots the internal structure of an individual star (as seen in Figures 5 and 6)
++ **diagrams.py**: creates the H-R, L-M, and R-M diagrams (as seen in Figures 1, 2, 3, and 4)
