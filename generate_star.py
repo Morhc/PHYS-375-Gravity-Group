@@ -1,5 +1,5 @@
 #script: generate_star.py
-#purpose: creates a star!
+#purpose: integrates the ODEs and returns the values
 
 import os
 import numpy as np
@@ -9,23 +9,20 @@ from tools import *
 import scipy.integrate as int
 import matplotlib.pyplot as plt
 
-#import FofLambda as grav
-
 np.seterr(all='ignore')
 
 def solveODEs(r_init, r_fin, y0):
     '''Function to solve the ODEs (equation 2 in the project description)'''
 
     def stopper(r, condition):
-        """Dictates when the integration stops for the conditions (1) M > 1000*Msun (2) dtau << 1
+        """Dictates when the integration stops for the conditions (1) M > 1000*Msun (2) dtau = 1e-3
         INPUTS:
             r - The current radius integrated at.
             condition - The array of conditions at radius r [rho, T, M, L, tau]
         OUTPUTS:
             Returns either a positive or negative value to direct the IVP solver to find
-            where dtau << 1 without having M > 1000Msun
+            where dtau = 1e-3 without having M > 1000Msun
         """
-
         if condition[2] > 1000*s.Msun: return -1
 
         #either positive or negative, the threshold is 1e-3 (the <<1)
@@ -36,7 +33,7 @@ def solveODEs(r_init, r_fin, y0):
 
     # outputs an array 'y' which contain the solutions to the ODEs which are described dydr from tools.py
     solutions = int.solve_ivp(dydr_gscaled, t_span, y0, 'RK45', t_eval=r_values,
-                              dense_output = True, events=stopper, atol=1e-15, rtol=1e-12)
+                              dense_output = True, events=stopper, rtol=1e-12, atol=1e-15)
 
     r = solutions.t # t here mean the 'time points' which in this case are the radius values or rvals
     rho, T, M, L, tau = solutions.y
@@ -86,7 +83,6 @@ def new_bisection(Tc):
 
     fmid, mid_rhoc = 10, 10 #arbitrary starting point / irrelevant
     tolerance = 1e-5 #tolerance for the bisection method
-    tolerance = 5
 
     count = 0 #for the sake of processing time
     while (abs(fmid) > tolerance) and (count < 200):

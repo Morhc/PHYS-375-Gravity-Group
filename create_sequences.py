@@ -18,38 +18,23 @@ def main():
 
         print(f'Generating star {num}. Temperature of {Tc}.')
 
-        if num in [13, 16, 18, 19, 20, 21, 23, 24]:
-            df, star_data = create_star(Tc)
+        df, star_data = create_star(Tc)
 
-            rho_c, Tc, R_star, M_star, L_star, T_star = star_data
+        rho_c, Tc, R_star, M_star, L_star, T_star = star_data
 
-            print(f'Saving the data. Took {time.time()-start} seconds.')
-            ### SAVING OUT THE DATA ###
-            summary_file = os.path.join(s.data_folder, f'stars_lam_{lam}, 'generated_stars.csv')
+        print(f'Saving the data. Took {time.time()-start} seconds.')
+        ### SAVING OUT THE DATA ###
+        #summary_file = os.path.join(s.data_folder, f'stars_lam_{lam}', 'generated_stars.csv')
+        summary_file = os.path.join(s.data_folder, 'test', 'generated_stars.csv')
 
-            with open(summary_file, 'a+') as f:
-                f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star},{num}\n')
+        with open(summary_file, 'a+') as f:
+            f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star},{num}\n')
 
-            df.to_csv(rf"{os.path.join(s.data_folder, f'stars_lam_{lam}, f'star_{num}.csv')}", index=False)
+        #df.to_csv(rf"{os.path.join(s.data_folder, f'stars_lam_{lam}', f'star_{num}.csv')}", index=False)
+        df.to_csv(rf"{os.path.join(s.data_folder, 'test', f'star_{num}.csv')}", index=False)
 
-            del df
+        del df
 
-    """
-    Tc = 8235440
-    Tc = int(round(14916666.666666666, -4))
-    df, star_data = create_star(Tc)
-
-    rho_c, Tc, R_star, M_star, L_star, T_star = star_data
-
-    summary_file = os.path.join(s.data_folder, 'summary_test.csv')
-
-    with open(summary_file, 'a+') as f:
-        f.write(f'{rho_c},{Tc},{R_star},{M_star},{L_star},{T_star}\n')
-
-    df.to_csv(rf"{os.path.join(s.data_folder, 'test_star.csv')}", index=False)
-
-    del df
-    """
 
 if __name__ == "__main__":
     main()

@@ -191,10 +191,12 @@ if __name__ == '__main__':
     summary = os.path.join(s.data_folder, 'stars_lam_0', 'generated_stars.csv')
     info = pd.read_csv(summary, header=0).iloc[i, :]
 
+    info.Tsurf = np.power(info.L * 1e-7 / (4*np.pi*s.sb*(info.R / 100)**2), 1/4)
+
     star = os.path.join(s.data_folder, 'stars_lam_0', f'star_{i}.csv')
     data = pd.read_csv(star, header=0)
 
-    savepath = os.path.join(s.plots_folder, 'test.png')
+    savepath = os.path.join(s.plots_folder, 'greater_than_2.png')
 
     print('Plotting')
 

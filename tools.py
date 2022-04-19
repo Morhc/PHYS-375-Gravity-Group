@@ -27,19 +27,6 @@ def load_data():
 
     return highmass, lowmass, summary
 
-def dydr(r,y) :
-    """Defining the 5 ODEs to solve using RK4. Takes radius(r) and y as inputs where y is a 5 column
-       matrix representing [rho,Temp,Mass,Luminosity,OpticalDepth, lambda].
-
-       DEFUNCT.
-    """
-    rho, T, M, L, tau = y
-
-    # The five ODEs we are trying to solve (equation 2)
-    dydr = np.array([drho_dr(rho, T, r, L, M), dT_dr(rho, T, r, L, M), dM_dr(r, rho), dL_dr(r, rho, T), dtau_dr(rho, T)])
-
-    return dydr
-
 def epsilon(rho, T):
     """Calculates epsilon using Equations 8 and 9 from the project description.
     INPUTS:
@@ -301,66 +288,6 @@ def dM_dr(r, rho):
 
     return dM
 
-def dT_dr(rho, T, r, L, M):
-    """Calculates the temperature via Equation 2.
-    INPUTS:
-        rho - The density at some radius.
-        T - The temperature at some radius.
-        r - The radius.
-        L - The luminosity at some radius.
-        M - The mass at some radius.
-    OUTPUTS:
-        dT - The temperature at some radius, in K/m.
-
-    DEFUNCT.
-    """
-
-    A = 3*kappa(rho, T)*rho*L/(16*np.pi*s.a*s.c*(T**3)*(r**2))
-    B = (1 - 1/s.gamma)*T*s.G*M*rho/(pressure(rho, T)*(r**2))
-
-    dT = -min([A, B])
-
-    return dT
-
-def drho_dr(rho, T, r, L, M):
-    """Calculates the density via Equation 2.
-    INPUTS:
-        rho - The density at some radius.
-        T - The temperature at some radius.
-        r - The radius.
-        L - The luminosity at some radius.
-        M - The mass at some radius.
-    OUTPUTS:
-        drho - The density at some radius, in kg/m^4.
-
-    DEFUNCT.
-    """
-
-    A = s.G*M*rho/(r**2)
-    B = dP_dT(rho, T)*dT_dr(rho, T, r, L, M)
-    C = dP_drho(rho, T)
-
-    drho = -(A+B)/C
-
-    return drho
-
-def luminosity_check(R, L, T):
-    """This function is used as a check to see how close the ODE solved luminosity is to the
-    theoretical value, taken from Equation 17 in the project description.
-    INPUTS:
-        R - The radius of the star.
-        L - The luminosity of the star.
-        T - The surface temperature of the star.
-
-    OUTPUTS:
-        f - If this value is 0 then we have a perfect match.
-    """
-
-    theoretical =  4*np.pi*s.sb*(R**2)*(T**4)
-    f = (L-theoretical) / np.sqrt(L*theoretical)
-
-    return f
-
 def dtau(r, condition):
     '''This fucntion will calcualte the opacity proxy'''
 
@@ -407,7 +334,7 @@ def drho_dr_scaled(r, rho, T, M, L, lam):
     """
 
     A = s.G*M*rho*(1+lam/r)/(r**2)
-    B = dP_dT(rho, T)*dT_dr(rho, T, r, L, M)
+    B = dP_dT(rho, T)*dT_dr_scaled(rho, T, r, L, M, lam)
     C = dP_drho(rho, T)
 
     drho = -(A+B)/C
