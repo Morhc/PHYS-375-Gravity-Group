@@ -23,4 +23,4 @@ This project will require the user to install the following Python libraries:
 + **tools.py**: contains all the stellar structure equations
 + **star_info.py**: plots the internal structure of an individual star (as seen in Figures 5 and 6)
 + **diagrams.py**: creates the H-R, L-M, and R-M diagrams (as seen in Figures 1, 2, 3, and 4)
-+ **standard.py**: a hub for all the constants used across the scripts
++ **standards.py**: a hub for all the constants used across the scripts
