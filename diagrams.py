@@ -44,15 +44,16 @@ def HR_diag(data, savepath=""):
 
         Lscaled = fff.L/s.Lsun * 1e-7
 
-        #ax.scatter(fff[filter].Tsurf, Lscaled, label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
+        ax.scatter(fff.Tsurf, Lscaled, label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
+        """
         f1 = fff.Tsurf > 1e4
-        f2 = Lscaled > 0.6
+        f2 = Lscaled > 0.65
         f4 = fff.Tsurf < 1e4
-        f3 = Lscaled < 0.6
+        f3 = Lscaled < 0.65
         ax.scatter(fff[f1].Tsurf, Lscaled[f1], label='Region 1', edgecolor='black', lw=1)
         ax.scatter(fff[f2*f4].Tsurf, Lscaled[f2*f4], label='Region 2', edgecolor='black', lw=1)
         ax.scatter(fff[f3].Tsurf, Lscaled[f3], label='Region 3', edgecolor='black', lw=1)
-
+        """
     #from p. 342 in Ryden
     spectral_type = ['O', 'B', 'A', 'F', 'G', 'K', 'M', 'L', 'T']
     spectral_temp = [40000, 20000, 9000, 7000, 5500, 4500, 3000, 2000, 1300]
@@ -63,10 +64,10 @@ def HR_diag(data, savepath=""):
     ax_t.set_xticks([1000, 5000, 1e4], ['1000', '5000', r'10$^4$'])
 
     ax.set_ylabel(r'$L$/$L_\odot$', rotation=0)
-    ax.set_yticks([0.01, 0.1, 1, 10, 100], ['0.01', '0.1', '1', '10', '100'])
+    ax.set_yticks([0.001, 0.01, 0.1, 1, 10, 100, 500], ['0.001', '0.01', '0.1', '1', '10', '100', '500'])
 
-    #ax.set_xlim(50000, 1000)
-    lgd = plt.legend()
+    ax.set_xlim(50000, 1000)
+    #lgd = plt.legend()
 
     if savepath != "":
         plt.savefig(savepath)
@@ -85,17 +86,22 @@ def LM_diag(data, savepath=""):
     """
 
     fig, ax = plt.subplots(figsize=(5,5))
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.tick_params(direction='in', which='both')
+    ax.tick_params(which='major', length=5)
+    ax.tick_params(which='minor', length=3)
 
     for xx in data:
         fff, lam = xx
 
-        filter = fff.R < 3.47e12 #means that the code broke
+        #filter = fff.R < 3.47e12 #means that the code broke
 
-        Lscaled = fff[filter].L/s.Lsun * 1e-7
-        Mscaled = fff[filter].M/s.Msun / 1000
+        Lscaled = fff.L/s.Lsun * 1e-7
+        Mscaled = fff.M/s.Msun / 1000
 
         #ax.scatter(np.log10(Mscaled), np.log10(Lscaled), label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
-        ax.scatter(np.log10(Mscaled), np.log10(Lscaled), label='Generated', edgecolor='black', lw=1)
+        ax.scatter(Mscaled, Lscaled, label='Generated', edgecolor='black', lw=1)
 
 
     #from Ryden p. 330
@@ -107,10 +113,12 @@ def LM_diag(data, savepath=""):
         else:
             Ltest.append(1.02*(M**3.92))
 
-    plt.plot(np.log10(Mtest), np.log10(Ltest), label='Expectation', ls='--', color='black')
+    plt.plot(Mtest, Ltest, label='Expectation', ls='--', color='black')
 
-    ax.set_xlabel(r'log$_{10}$($M$/$M_\odot$)')
-    ax.set_ylabel(r'log$_{10}$($L$/$L_\odot$)')
+    ax.set_xlabel(r'$M$/$M_\odot$')
+    ax.set_ylabel(r'$L$/$L_\odot$')
+    ax.set_xticks([0.1, 0.5, 1, 5, 10], ['0.1', '0.5', '1', '5', '10'])
+    ax.set_yticks([0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000], ['0.001', '0.01', '0.1', '1', '10', '100', '1000', '10000'])
 
     plt.legend()
 
@@ -131,17 +139,22 @@ def RM_diag(data, savepath=""):
     """
 
     fig, ax = plt.subplots(figsize=(5,5))
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.tick_params(direction='in', which='both')
+    ax.tick_params(which='major', length=5)
+    ax.tick_params(which='minor', length=3)
 
     for xx in data:
         fff, lam = xx
 
-        filter = fff.R < 3.47e12 #means that the code broke
+        #filter = fff.R < 3.47e12 #means that the code broke
 
-        Rscaled = fff[filter].R/s.Rsun / 100
-        Mscaled = fff[filter].M/s.Msun / 1000
+        Rscaled = fff.R/s.Rsun / 100
+        Mscaled = fff.M/s.Msun / 1000
 
         #ax.scatter(np.log10(Mscaled), np.log10(Rscaled), label=rf'$\lambda$ = {lam}', edgecolor='black', lw=1)
-        ax.scatter(np.log10(Mscaled), np.log10(Rscaled), label='Generated', edgecolor='black', lw=1)
+        ax.scatter(Mscaled, Rscaled, label='Generated', edgecolor='black', lw=1)
 
     #from Ryden p. 330
     Mtest = np.linspace(0.1, 10, 100)
@@ -152,12 +165,14 @@ def RM_diag(data, savepath=""):
         else:
             Rtest.append(1.33*(M**0.555))
 
-    plt.plot(np.log10(Mtest), np.log10(Rtest), label='Expectation', ls='--', color='black')
+    plt.plot(Mtest, Rtest, label='Expectation', ls='--', color='black')
 
-    ax.set_xlabel(r'log$_{10}$($M$/$M_\odot$)')
-    ax.set_ylabel(r'log$_{10}$($R$/$R_\odot$)')
+    ax.set_xlabel(r'$M$/$M_\odot$')
+    ax.set_ylabel(r'$R$/$R_\odot$')
+    ax.set_xticks([0.1, 0.5, 1, 5, 10], ['0.1', '0.5', '1', '5', '10'])
+    ax.set_yticks([0.1, 1, 10, 50], ['0.1', '1', '10', '50'])
 
-    plt.legend()
+    plt.legend(loc='upper left')
 
 
     if savepath != "":
