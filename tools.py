@@ -1,4 +1,4 @@
- #script: tools.py
+#script: tools.py
 #purpose: To have a hub for all useful functions.
 
 import os
